@@ -26,29 +26,31 @@ Commit messages should explain what the commit is accomplishing.
 Variable names should be consistant. All important code files should have header section explaining what the code file does. In-line comments should be used as needed to explain parts of code that are harder to understand
 
 ## Testing
+Generally, when new features are implemented, the writter of the PR is responsible for defining how test their feature. Most testing will be manual.
 
-Define required test types, how to run tests, expected coverage thresholds, and when new/updated tests are mandatory.
+Backend testing will generally consist of testing API endpoint with a service like Postman and see if the output is as expected
 
 ## Pull Requests & Reviews
+Each feature PR must go through a review process before being merged.
+The required number of reviews is slightly different for backend a frontend PRs:
+- Front-End: Reqiures **at least 1** approving review to merge.
+- Back-End:  Reqiures **at least 2** approving reviews to merge.
+- Misc: Reqiures **at least 2** approving reviews to merge.
 
-Outline PR requirements (template, checklist, size limits), reviewer expectations, approval rules, and required status checks.
+After the threshold for approving reviews is reached, **the PR author is responsible for merging the code** as they know best if the code is truly ready to merge
+
+Reviewers are expected to look through all modified files, and comment any potential problems that they see in the code. They are also expected to enforce good coding practices.
 
 ## CI/CD
-
-Link to pipeline definitions, list mandatory jobs, how to view logs/re-run jobs, and what must pass before merge/release.
+When developing lambda functions for the backend, the functions wil be automatically deployed to AWS using this proceedure: https://docs.aws.amazon.com/lambda/latest/dg/deploying-github-actions.html
 
 ## Security & Secrets
-
-State how to report vulnerabilities, prohibited patterns (hard-coded secrets), dependency update policy, and scanning tools.
+It is prohibited to write secrets(ie. API tokens, client secrets, etc) to this repo anywhere, this includes any branch, or commit. If such a item has been accidently written to the repo. Report it to the team immediately, and take the steps necessary to refresh the secret such that the previous value is null and does nothing.
 
 ## Documentation Expectations
-
-Specify what must be updated (README, docs/, API refs, CHANGELOG) and docstring/comment standards.
+If any big change has been made that changes how to set up your local enviornment, update the TEADME file accordingly
 
 ## Release Process
 
 Describe versioning scheme, tagging, changelog generation, packaging/publishing steps, and rollback process.
 
-## Support & Contact
-
-Provide maintainer contact channel, expected response windows, and where to ask questions.
