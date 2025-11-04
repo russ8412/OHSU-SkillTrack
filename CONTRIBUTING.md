@@ -17,16 +17,13 @@ If multiple contributors are working together on a set of related or complex fea
 All contributors to that bundle should merge their changes into a release branch. Once the release branch is complete, stable, and ready, a pull request (PR) should be opened to merge it into main.
 
 ## Issues & Planning
-
-Explain how to file issues, required templates/labels, estimation, and triage/assignment practices.
+Our Trello board is the primary way used to plan for the future, please make sure to make a card as you plan what features you will work on, and move the card along as you close features.
 
 ## Commit Messages
-
-State the convention (e.g., Conventional Commits), include examples, and how to reference issues.
+Commit messages should explain what the commit is accomplishing.
 
 ## Code Style, Linting & Formatting
-
-Name the formatter/linter, config file locations, and the exact commands to check/fix locally.
+Variable names should be consistant. All important code files should have header section explaining what the code file does. In-line comments should be used as needed to explain parts of code that are harder to understand
 
 ## Testing
 
