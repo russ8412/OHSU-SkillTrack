@@ -1,18 +1,20 @@
 # Contributing Guide
 
-How to set up, code, test, review, and release so contributions meet our Definition of Done.
+How to set up, code, test, review, and release.
 
 ## Code of Conduct
-
-Reference the project/community behavior expectations and reporting process.
+IMPORT THIS FROM THE TEAM CHARTER - Currently a WIP
 
 ## Getting Started
-
-List prerequisites, setup steps, environment variables/secrets handling, and how to run the app locally.
+Please review the README.md file for how to prepare your environment to run the app. 
 
 ## Branching & Workflow
+The default branch is **main**, this branch should **never** be written to directly. 
 
-Describe the workflow (e.g., trunk-based or GitFlow), default branch, branch naming, and when to rebase vs. merge.
+When making contributions, always create a **new branch** or contribute to an **existing feature branch** instead.
+
+If multiple contributors are working together on a set of related or complex features (for example, when the front-end team is implementing several features that are best released together), they should use a **release branch** workflow.
+All contributors to that bundle should merge their changes into a release branch. Once the release branch is complete, stable, and ready, a pull request (PR) should be opened to merge it into main.
 
 ## Issues & Planning
 
