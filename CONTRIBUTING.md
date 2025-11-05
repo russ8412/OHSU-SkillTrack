@@ -48,9 +48,9 @@ When developing lambda functions for the backend, the functions wil be automatic
 It is prohibited to write secrets(ie. API tokens, client secrets, etc) to this repo anywhere, this includes any branch, or commit. If such a item has been accidently written to the repo. Report it to the team immediately, and take the steps necessary to refresh the secret such that the previous value is null and does nothing.
 
 ## Documentation Expectations
-If any big change has been made that changes how to set up your local enviornment, update the TEADME file accordingly
+If any big change has been made that changes how to set up your local enviornment, update the README file accordingly
 
 ## Release Process
+Release Notes and versioning are seperated into the Front-end and the Back-end, these will have seperate versions. Each has a file called ReleaseNotes.md. Each time a merge is made into the main branch counts as a release and requires a new version entry in the ReleaseNotes file, but only for the affected component (ie. a backend feature update only requires a entry on the backend release notes.). Each merge into main should increment the second number of the version, ie. the version after 1.0 should be 1.1, the one after that 1.2. After 1.9 the order is 1.9, 1.10, 1.11, 1.12, etc. If there is a MAJOR release, to be determined by the team, then the initial digit can be incremented. Each merge should also detail what features are being added, in this box.
 
-Describe versioning scheme, tagging, changelog generation, packaging/publishing steps, and rollback process.
 
