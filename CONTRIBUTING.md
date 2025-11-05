@@ -1,6 +1,6 @@
 # Contributing Guide
 
-How to set up, code, test, review, and release.
+Review this document to learn our guidelines on how to set up, code, test, review, and release.
 
 ## Code of Conduct
 IMPORT THIS FROM THE TEAM CHARTER - Currently a WIP
