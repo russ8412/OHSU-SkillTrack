@@ -3,7 +3,9 @@
 Review this document to learn our guidelines on how to set up, code, test, review, and release.
 
 ## Code of Conduct
-IMPORT THIS FROM THE TEAM CHARTER - Currently a WIP
+1. Provide constructive feedback when reviewing other people's code. Be specific as to what changes you would like to be seen made. And if you do see an issue, do not hesistate to point it out, better safe than sorry.
+2. Be responsive if other people have questions about your code, a rule of thumb is to reply within 24 hours.
+3. Follow merging guidelines, do not merge code unless the appropriate review has been made on it.
 
 ## Getting Started
 Please review the README.md file for how to prepare your environment to run the app. 
