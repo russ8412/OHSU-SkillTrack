@@ -28,7 +28,7 @@ jobs:
       # Installs dependencies
       - name: Install dependencies
         run: |
-          cd OHSU-SkillTrack/Frontend/SkillTrackFrontend
+          cd OHSU-SkillTrack/OHSU-SkillTrack/Frontend/SkillTrackFrontend
           npm ci
 
       # Verifies Expo can compile. Test cases will go after this once written.
