@@ -43,3 +43,9 @@ jobs:
         run: |
           cd Frontend/SkillTrackFrontend
           npx expo export --platform web --output-dir dist --non-interactive
+      # Checks JavaScript code quality
+      - name: Lint
+        run: |
+          cd Frontend/SkillTrackFrontend
+          npm i -D eslint
+          npx eslint . || true
