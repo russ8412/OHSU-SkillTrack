@@ -25,6 +25,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
+      # Makes a dummy config for security purposes
+      - name: Create dummy Amplify config
+        run: |
+          cd Frontend/SkillTrackFrontend
+          mkdir -p src
+          echo '{}' > src/amplifyconfiguration.json
+      
       # Installs dependencies
       - name: Install dependencies
         run: |
