@@ -25,18 +25,14 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Print current directory and list files
-        run: |
-          pwd
-          ls -R
       # Installs dependencies
       - name: Install dependencies
         run: |
-          cd OHSU-SkillTrack/OHSU-SkillTrack/Frontend/SkillTrackFrontend
+          cd Frontend/SkillTrackFrontend
           npm ci
 
       # Verifies Expo can compile. Test cases will go after this once written.
       - name: Verify Expo can compile
         run: |
-          cd OHSU-SkillTrack/Frontend/SkillTrackFrontend
+          cd Frontend/SkillTrackFrontend
           npx expo export --platform web --output-dir dist --non-interactive
