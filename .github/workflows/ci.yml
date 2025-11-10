@@ -25,6 +25,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
+      - name: Print current directory and list files
+        run: |
+          pwd
+          ls -R
       # Installs dependencies
       - name: Install dependencies
         run: |
