@@ -1,5 +1,6 @@
-import { View, Text, Pressable, StyleSheet, TextInput } from 'react-native';
-import { useState } from 'react';
+import {useState} from 'react';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import OverviewPage from './overview_page';
 
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
@@ -9,30 +10,16 @@ export default function LoginScreen() {
     console.log("Logging in with:", username);
   }
 
+  const [showOverview, setShowOverview] = useState(false);
+    if(showOverview){
+      return <OverviewPage/>;
+    }
+
   return (
     <View style={styles.container}>
-        <Text style={styles.header}>SkillTrack</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Username"
-            placeholderTextColor="rgba(0, 0, 0, 0.5)"
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="rgba(0, 0, 0, 0.5)"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCapitalize="none"
-          />
-        </View>
-        <Pressable style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}> Log in </Text>
+        <Text style={styles.header}> Welcome! </Text>
+        <Pressable style={styles.button} onPress={ () => setShowOverview(true)}>
+          <Text> Log in </Text>
         </Pressable>
     </View>
   );
