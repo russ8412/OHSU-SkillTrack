@@ -22,12 +22,39 @@ Resources:
           MyCognitoAuthorizer:
             UserPoolArn: !GetAtt MyCognitoUserPool.Arn
 
+#Original DynamoDB Table
+# SkillTrackTable:
+#    Type: AWS::DynamoDB::Table
+#    Properties:
+#      TableName: SkillTrackTable
+#      AttributeDefinitions:
+#        - AttributeName: ID
+#          AttributeType: S
+#      KeySchema:
+#        - AttributeName: ID
+#          KeyType: HASH
+#      BillingMode: PROVISIONED
+#      ProvisionedThroughput: 
+#        ReadCapacityUnits: 1
+#        WriteCapacityUnits: 1
+
+
   SkillTrackTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: SkillTrackTable
+      TableName: PRACTICE_SkillTrackTable
       AttributeDefinitions:
-        - AttributeName: ID
+        - AttributeName: ClassYear
+          AttributeType: S
+        - AttributeName: Role
+          AttributeType: S
+        - AttributeName: Email
+          AttributeType: S
+        - AttributeName: FirstName
+          AttributeType: S
+        - AttributeName: LastName
+          AttributeType: S
+        - AttributeName: CPRCertification
           AttributeType: S
       KeySchema:
         - AttributeName: ID
