@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+/*import { View, Text, Pressable, StyleSheet } from 'react-native';
 
 export default function OverviewPage() {
   const handleFilter= () => {
@@ -60,4 +60,13 @@ description: {
     maxWidth: 120,
 },
 
-});
+});*/
+
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { fetchAuthSession } from 'aws-amplify/auth';
+
+import { Authenticator } from '@aws-amplify/ui-react-native';
+
+export default function LoginPage() {
+  return <Authenticator />;
+}
