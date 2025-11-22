@@ -44,20 +44,10 @@ Resources:
     Properties:
       TableName: PRACTICE_SkillTrackTable
       AttributeDefinitions:
-        - AttributeName: ClassYear
-          AttributeType: S
-        - AttributeName: Role
-          AttributeType: S
         - AttributeName: Email
           AttributeType: S
-        - AttributeName: FirstName
-          AttributeType: S
-        - AttributeName: LastName
-          AttributeType: S
-        - AttributeName: CPRCertification
-          AttributeType: S
       KeySchema:
-        - AttributeName: ID
+        - AttributeName: Email
           KeyType: HASH
       BillingMode: PROVISIONED
       ProvisionedThroughput: 
