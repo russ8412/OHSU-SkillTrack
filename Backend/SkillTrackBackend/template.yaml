@@ -38,11 +38,11 @@ Resources:
 #        ReadCapacityUnits: 1
 #        WriteCapacityUnits: 1
 
-
+  
   SkillTrackTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: PRACTICE_SkillTrackTable
+      TableName: SkillTrackTable
       AttributeDefinitions:
         - AttributeName: Email
           AttributeType: S
