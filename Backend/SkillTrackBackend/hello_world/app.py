@@ -11,12 +11,15 @@ table = dynamodb.Table(os.environ["TABLE_NAME"])
 
 def lambda_handler(event, context):
 
+    claims = event["requestContext"]["authorizer"]["claims"]
+    email = claims.get("email")
+
     mock_data ={
-        "Email": "test@gmail.com",
+        "Email": email,
         "FirstName": "John",
         "LastName": "Doe",
         "Roles": ["Student"],
-        "years": [
+        "Years": [
             {
                 "Year": 1,
                 "Courses":[
