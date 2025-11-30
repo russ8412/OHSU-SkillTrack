@@ -39,7 +39,7 @@ def lambda_handler(event, context):
                     "Years":  
                     [
                         {
-                            "Year": 1,
+                            "Year": '1',
                             "Courses":[
                             {
                                 "CourseName":  "NRS 210: Foundations of Nursing Health Promotion",
