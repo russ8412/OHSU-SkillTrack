@@ -64,6 +64,7 @@ Resources:
         Variables:
           TABLE_NAME: SkillTrackTable
 
+  #It says FetchStudent data, but perhaps it should just be general purpose fetch user data. Consider changing it later
   FetchStudentDataFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -87,7 +88,30 @@ Resources:
           TABLE_NAME: SkillTrackTable
 
 
-
+#####################
+  #Currently no input validatoin is being done here for the required fields, optional, but consider doing it later on.
+  CheckStudentOffFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: CheckStudentOff/
+      Handler: app.lambda_handler
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        CheckStudentOff:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /CheckStudentOff
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: SkillTrackTable
+      Environment:
+        Variables:
+          TABLE_NAME: SkillTrackTable
+#####################
 
   MyCognitoUserPool:
     Type: AWS::Cognito::UserPool
