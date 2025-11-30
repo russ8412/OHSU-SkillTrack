@@ -15,28 +15,16 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      Cors: "'*'"
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
       Auth:
         DefaultAuthorizer: MyCognitoAuthorizer
+        AddDefaultAuthorizerToCorsPreflight: False
         Authorizers:
           MyCognitoAuthorizer:
             UserPoolArn: !GetAtt MyCognitoUserPool.Arn
-
-#Original DynamoDB Table
-# SkillTrackTable:
-#    Type: AWS::DynamoDB::Table
-#    Properties:
-#      TableName: SkillTrackTable
-#      AttributeDefinitions:
-#        - AttributeName: ID
-#          AttributeType: S
-#      KeySchema:
-#        - AttributeName: ID
-#          KeyType: HASH
-#      BillingMode: PROVISIONED
-#      ProvisionedThroughput: 
-#        ReadCapacityUnits: 1
-#        WriteCapacityUnits: 1
 
   
   SkillTrackTable:
@@ -76,6 +64,30 @@ Resources:
         Variables:
           TABLE_NAME: SkillTrackTable
 
+  FetchStudentDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: FetchStudentData/
+      Handler: app.lambda_handler
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        FetchStudentData:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /FetchStudentData
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: SkillTrackTable
+      Environment:
+        Variables:
+          TABLE_NAME: SkillTrackTable
+
+
+
 
   MyCognitoUserPool:
     Type: AWS::Cognito::UserPool
@@ -97,8 +109,8 @@ Resources:
       UserPoolId: !Ref MyCognitoUserPool
       ClientName: MyUserPoolClient
       GenerateSecret: false  
-Outputs:
 
+Outputs:
   HelloWorldApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
     Value: !Sub "https://${MyApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/hello/"
