@@ -1,49 +1,193 @@
 // app/skill/[id].tsx
+import { useState, useEffect } from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView, Linking } from 'react-native';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { BASE_URL } from '../../src/constants/api';
+
+interface SkillDetailData {
+  skillName: string;
+  description: string;
+  requirements: string[];
+  resources: Array<{
+    name: string;
+    url: string;
+  }>;
+  completionDetails: string;
+}
+
+// Mock data for skill details
+const mockSkillDetails: Record<string, SkillDetailData> = {
+  'Handwashing - Infection Prevention': {
+    skillName: 'Handwashing - Infection Prevention',
+    description: 'Demonstrate proper handwashing technique for infection prevention and control in healthcare settings.',
+    requirements: [
+      'Wet hands with clean, running water',
+      'Apply soap and lather all surfaces of hands',
+      'Scrub for at least 20 seconds',
+      'Rinse thoroughly under running water',
+      'Dry hands using a clean towel or air dryer'
+    ],
+    resources: [
+      { name: 'CDC Hand Hygiene Guidelines', url: 'https://www.cdc.gov/handhygiene/index.html' },
+      { name: 'WHO Hand Hygiene Techniques', url: 'https://www.who.int/gpsc/5may/Hand_Hygiene_Why_How_and_When_Brochure.pdf' }
+    ],
+    completionDetails: 'Skill completion requires demonstration of proper technique and answering knowledge questions.'
+  },
+  'PPE - Infection Prevention': {
+    skillName: 'PPE - Infection Prevention',
+    description: 'Properly don (put on) and doff (remove) personal protective equipment (PPE) to prevent infection transmission.',
+    requirements: [
+      'Identify appropriate PPE for different clinical situations',
+      'Correctly sequence donning of gown, mask, goggles, gloves',
+      'Safely remove contaminated PPE without self-contamination',
+      'Dispose of PPE properly in designated containers'
+    ],
+    resources: [
+      { name: 'PPE Donning and Doffing Guide', url: 'https://www.cdc.gov/hai/pdfs/ppe/ppe-sequence.pdf' },
+      { name: 'Infection Control Guidelines', url: 'https://www.cdc.gov/infectioncontrol/guidelines/index.html' }
+    ],
+    completionDetails: 'Must demonstrate proper technique for both donning and doffing procedures.'
+  },
+  'Vital Signs / Oximetry': {
+    skillName: 'Vital Signs / Oximetry',
+    description: 'Accurately measure and document vital signs including temperature, pulse, respiration, blood pressure, and oxygen saturation.',
+    requirements: [
+      'Correctly use thermometer, stethoscope, blood pressure cuff, and pulse oximeter',
+      'Obtain accurate readings on simulated patients',
+      'Recognize normal vs. abnormal vital sign ranges',
+      'Properly document findings in appropriate format'
+    ],
+    resources: [
+      { name: 'Vital Signs Measurement Guide', url: '#' },
+      { name: 'Pulse Oximetry Training Module', url: '#' }
+    ],
+    completionDetails: 'Accuracy within acceptable ranges must be demonstrated on multiple attempts.'
+  },
+  // Add more mock data as needed
+};
 
 export default function SkillDetailScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const [loading, setLoading] = useState(false);
 
   // Parse skill data from params
   const skillName = decodeURIComponent(params.id as string);
   const status = params.status as string || 'incomplete';
   const courseName = decodeURIComponent(params.courseName as string) || 'Unknown Course';
+  const year = params.year as string || '1';
 
   const isComplete = status === 'complete';
 
-  // Mock data - in real app, fetch from API
-  const skillData = {
-    description: 'Show ability to administer medications via IV and calculate the amount properly.',
+  // Get skill details from mock data
+  const skillData = mockSkillDetails[skillName] || {
+    skillName,
+    description: 'Detailed description for this skill will be available soon.',
     requirements: [
-      'Student properly calculates amount and administers medication via IV',
-      'Demonstrates proper IV setup and maintenance',
-      'Follows aseptic technique throughout procedure',
-      'Correctly documents medication administration'
+      'Demonstrate competency in skill performance',
+      'Follow established protocols and procedures',
+      'Document completion appropriately'
     ],
     resources: [
-      { name: 'iv_medication_guide.pdf', url: '#' },
-      { name: 'IV Administration Handbook', url: '#' },
-      { name: 'Medication Calculation Worksheet', url: '#' }
-    ]
+      { name: 'Course Textbook', url: '#' },
+      { name: 'Skill Checklist', url: '#' }
+    ],
+    completionDetails: isComplete 
+      ? 'This skill has been marked as complete by an instructor.' 
+      : 'This skill requires instructor verification for completion.'
   };
+
+  // Optional: Verify skill status with API (but /hello doesn't have individual skill status)
+  useEffect(() => {
+    const verifySkillStatus = async () => {
+      try {
+        setLoading(true);
+        const session = await fetchAuthSession();
+        const token = session.tokens?.idToken?.toString();
+        
+        if (!token) {
+          console.error('No authentication token found');
+          setLoading(false);
+          return;
+        }
+
+        // Get all data to verify skill status
+        const response = await fetch(`${BASE_URL}/hello`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": token,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Data received for verification:', data);
+        // Note: We could parse to verify, but for now we trust the params
+        setLoading(false);
+        
+      } catch (error) {
+        console.error('Error verifying skill status:', error);
+        setLoading(false);
+      }
+    };
+
+    verifySkillStatus();
+  }, [skillName, courseName]);
 
   const handleResourcePress = (url: string) => {
-    // In a real app, this would open the PDF or link
-    alert('Resource would open here');
+    if (url && url !== '#' && url.startsWith('http')) {
+      Linking.openURL(url);
+    } else {
+      alert('Resource link not available');
+    }
   };
 
-  const handleGetCheckedOff = () => {
-    // In a real app, this would mark the skill as complete or request instructor approval
-    alert('Instructor check-off requested');
+  const handleGetCheckedOff = async () => {
+    try {
+      // Since we don't have an endpoint to update skill status, we'll just show an alert
+      // In a real app, you would call an API endpoint here
+      alert(`Skill "${skillName}" would be marked as complete. This requires instructor verification.`);
+      
+      // Optional: Log to console for debugging
+      console.log('Skill completion requested:', {
+        skillName,
+        courseName,
+        year,
+        studentEmail: 'test@example.com' // Would get from auth session
+      });
+      
+    } catch (error) {
+      console.error('Error marking skill as complete:', error);
+      alert('Failed to update skill status');
+    }
   };
+
+  if (loading) {
+    return (
+      <>
+        <Stack.Screen 
+          options={{
+            headerTitle: skillName,
+            headerBackTitle: 'Back',
+          }}
+        />
+        <View style={styles.container}>
+          <Text style={styles.loadingText}>Loading skill details...</Text>
+        </View>
+      </>
+    );
+  }
 
   return (
     <>
       <Stack.Screen 
         options={{
-          headerTitle: skillName,
+          headerTitle: skillData.skillName,
           headerBackTitle: 'Back',
         }}
       />
@@ -61,7 +205,7 @@ export default function SkillDetailScreen() {
               {isComplete ? 'Complete' : 'Incomplete'}
             </Text>
           </View>
-          <Text style={styles.courseName}>{courseName}</Text>
+          <Text style={styles.courseName}>{courseName} (Year {year})</Text>
         </View>
 
         {/* Details Section */}
@@ -100,9 +244,7 @@ export default function SkillDetailScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Completion Details</Text>
           <Text style={styles.completionText}>
-            {isComplete 
-              ? 'This skill has been marked as complete by an instructor.'
-              : 'This skill has not been marked as complete by an instructor.'}
+            {skillData.completionDetails}
           </Text>
         </View>
 
@@ -127,6 +269,7 @@ export default function SkillDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  // ... (keep all existing styles exactly as they were)
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -220,5 +363,11 @@ const styles = StyleSheet.create({
   },
   spacer: {
     height: 40,
+  },
+  loadingText: {
+    fontSize: 17,
+    color: '#8E8E93',
+    textAlign: 'center',
+    marginTop: 40,
   },
 });

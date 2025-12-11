@@ -1,11 +1,29 @@
-// app/course/[id].tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { View, Text, Pressable, StyleSheet, FlatList, TextInput, ScrollView } from 'react-native';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { BASE_URL } from '../../src/constants/api';
 
 interface Skill {
   skillName: string;
   status: boolean;
+}
+
+interface Course {
+  CourseName?: string;
+  Skills?: Record<string, boolean>;
+}
+
+interface YearData {
+  Courses?: Course[];
+}
+
+interface StudentData {
+  Email: string;
+  FirstName?: string | null;
+  LastName?: string | null;
+  Roles?: string | null;
+  Years?: YearData[];
 }
 
 export default function CourseSkillsScreen() {
@@ -20,30 +38,102 @@ export default function CourseSkillsScreen() {
   // Parse course data from params
   const courseName = decodeURIComponent(params.id as string);
   const year = parseInt(params.year as string) || 1;
+  const totalSkills = parseInt(params.totalSkills as string) || 0;
+  const completedSkillsFromParams = parseInt(params.completedSkills as string) || 0;
+
+  const fetchCourseSkills = useCallback(async () => {
+    try {
+      setLoading(true);
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+      
+      if (!token) {
+        console.error('No authentication token found');
+        setLoading(false);
+        return;
+      }
+
+      console.log('Fetching all data from /hello endpoint');
+      const response = await fetch(`${BASE_URL}/hello`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: StudentData = await response.json();
+      console.log('Full data received:', data);
+      
+      // Find the specific course in the data structure
+      let courseSkills: Skill[] = [];
+      
+      if (data.Years && Array.isArray(data.Years)) {
+        // Year is 1-based index in the UI, but 0-based in the array
+        const yearIndex = year - 1;
+        if (yearIndex >= 0 && yearIndex < data.Years.length) {
+          const yearData = data.Years[yearIndex];
+          
+          if (yearData.Courses && Array.isArray(yearData.Courses)) {
+            const course = yearData.Courses.find(c => 
+              c.CourseName === courseName
+            );
+            
+            if (course && course.Skills) {
+              const skillEntries = Object.entries(course.Skills);
+              courseSkills = skillEntries.map(([skillName, status]) => ({
+                skillName,
+                status: status === true
+              }));
+              console.log(`Found ${skillEntries.length} skills for course: ${courseName}`);
+            } else {
+              console.warn(`Course not found: ${courseName} in year ${year}`);
+            }
+          }
+        }
+      }
+      //fallback mock data if no skills found. only for testing purposes
+      if (courseSkills.length === 0) {
+        console.log('No skills found in API response, using fallback data');
+        const mockSkills: Skill[] = [
+          { skillName: 'Handwashing - Infection Prevention', status: true },
+          { skillName: 'PPE - Infection Prevention', status: true },
+          { skillName: 'Vital Signs / Oximetry', status: true },
+          { skillName: 'Intake / Output, Specimen Collection', status: false },
+          { skillName: 'Basic Skills Checklist', status: false },
+          { skillName: 'Introduction to Lab Values', status: false },
+          { skillName: 'Mobility - Ambulation', status: false },
+          { skillName: 'IV - Medical Administration and Calculation', status: false },
+        ];
+        courseSkills = mockSkills;
+      }
+      
+      setSkills(courseSkills);
+      setFilteredSkills(courseSkills);
+      setLoading(false);
+      
+    } catch (error) {
+      console.error('Error fetching course skills:', error);
+      setLoading(false);
+    }
+  }, [courseName, year]);
 
   useEffect(() => {
-    // Mock skills data - adjust based on your actual course
-    const mockSkills: Skill[] = [
-      { skillName: 'Handwashing - Infection Prevention', status: true },
-      { skillName: 'PPE - Infection Prevention', status: true },
-      { skillName: 'Vital Signs / Oximetry', status: true },
-      { skillName: 'Intake / Output, Specimen Collection', status: false },
-      { skillName: 'Basic Skills Checklist', status: false },
-      { skillName: 'Introduction to Lab Values', status: false },
-      { skillName: 'Mobility - Ambulation', status: false },
-      { skillName: 'IV - Medical Administration and Calculation', status: false },
-    ];
+    fetchCourseSkills();
+  }, [fetchCourseSkills]);
 
-    setSkills(mockSkills);
-    setFilteredSkills(mockSkills);
-    setLoading(false);
-  }, []);
+  const completedSkills = completedSkillsFromParams > 0 
+    ? completedSkillsFromParams 
+    : skills.filter(skill => skill.status).length;
+  const totalSkillsCount = totalSkills > 0 
+    ? totalSkills 
+    : skills.length;
 
-  // Calculate actual completion counts
-  const completedSkills = skills.filter(skill => skill.status).length;
-  const totalSkills = skills.length;
-
-  // Filter skills based on search and status filter
+  // Filter
   useEffect(() => {
     let filtered = skills;
     
@@ -78,7 +168,8 @@ export default function CourseSkillsScreen() {
       params: { 
         id: encodeURIComponent(skill.skillName),
         status: skill.status ? 'complete' : 'incomplete',
-        courseName: courseName
+        courseName: courseName,
+        year: year.toString()
       }
     });
   };
@@ -129,7 +220,7 @@ export default function CourseSkillsScreen() {
           <Text style={styles.yearText}>Year {year}</Text>
           <View style={styles.progressContainer}>
             <Text style={styles.progressText}>
-              {completedSkills}/{totalSkills} skills complete
+              {completedSkills}/{totalSkillsCount} skills complete
             </Text>
           </View>
         </View>
@@ -238,6 +329,7 @@ export default function CourseSkillsScreen() {
 }
 
 const styles = StyleSheet.create({
+  // ... (keep all existing styles exactly as they were)
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
