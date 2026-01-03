@@ -22,7 +22,7 @@ def lambda_handler(event, context):
     # Fetch an item by primary key, the email
         response = table.get_item(
             Key= {
-                "Email": email
+                "ID": "USER#" + email
             }
         )
         
@@ -122,7 +122,7 @@ def lambda_handler(event, context):
     try:
         for student_email in student_list:
 
-            student_row = table.get_item(Key={"Email": email})
+            student_row = table.get_item(Key={"ID":"USER#"+ email})
             student_row_json = student_row["Item"]
             
             
@@ -149,7 +149,7 @@ def lambda_handler(event, context):
             #see if we can find the indexes of what we want to update
             
             table.update_item(
-                Key = {"Email": student_email},
+                Key = {"ID": "USER#" + student_email},
                 UpdateExpression = f"SET Years[{y_index}].Courses[{c_index}].Skills.#skill = :sk",
                 ExpressionAttributeNames={
                     "#skill": skill_name

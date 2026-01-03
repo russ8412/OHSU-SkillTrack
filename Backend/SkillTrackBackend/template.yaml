@@ -32,10 +32,10 @@ Resources:
     Properties:
       TableName: SkillTrackTable
       AttributeDefinitions:
-        - AttributeName: Email
+        - AttributeName: ID
           AttributeType: S
       KeySchema:
-        - AttributeName: Email
+        - AttributeName: ID
           KeyType: HASH
       BillingMode: PROVISIONED
       ProvisionedThroughput: 
@@ -64,21 +64,21 @@ Resources:
         Variables:
           TABLE_NAME: SkillTrackTable
 
-  #It says FetchStudent data, but perhaps it should just be general purpose fetch user data. Consider changing it later
-  FetchStudentDataFunction:
+  #Used to Fetch the information of the logged in user
+  FetchUserDataFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: FetchStudentData/
+      CodeUri: FetchUserData/
       Handler: app.lambda_handler
       Runtime: python3.13
       Architectures:
         - x86_64
       Events:
-        FetchStudentData:
+        FetchUserData:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             RestApiId: !Ref MyApi
-            Path: /FetchStudentData
+            Path: /FetchUserData
             Method: get
       Policies:
         - DynamoDBCrudPolicy:

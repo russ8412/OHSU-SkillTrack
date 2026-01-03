@@ -6,6 +6,10 @@ dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
 
 
+GlobalHeaders ={"Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type,Authorization",
+            "Access-Control-Allow-Methods": "GET,OPTIONS"}
+
 def lambda_handler(event, context):
 
 
@@ -21,7 +25,7 @@ def lambda_handler(event, context):
     # Fetch an item by primary key, the email
         response = table.get_item(
             Key= {
-                "Email": email
+                "ID": "USER#" +email
             }
         )
         
@@ -32,7 +36,7 @@ def lambda_handler(event, context):
             #try generating the item
             try:
                 item ={
-                    "Email": email,
+                    "ID": "USER#"+email,
                     "FirstName": None,
                     "LastName": None,
                     "Roles": ["Student"],
@@ -71,11 +75,7 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": statusCode,
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Content-Type,Authorization",
-            "Access-Control-Allow-Methods": "GET,OPTIONS"
-        },       
+        "headers": GlobalHeaders,       
         "body": json.dumps(body)
     }
 
