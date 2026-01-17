@@ -111,6 +111,30 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: SkillTrackTable
+
+
+  CreateCourseFromTemplateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: CreateCourseFromTemplate/
+      Handler: app.create_course_from_template
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        CreateCourseFromTemplate:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /CreateCourseFromTemplate
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: SkillTrackTable
+      Environment:
+        Variables:
+          TABLE_NAME: SkillTrackTable
+
 #####################
 
   MyCognitoUserPool:
