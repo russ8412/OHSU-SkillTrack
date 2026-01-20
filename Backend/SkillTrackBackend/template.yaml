@@ -191,6 +191,28 @@ Resources:
         Variables:
           TABLE_NAME: SkillTrackTable
 
+
+  GetListOfTemplatesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetListOfTemplates/
+      Handler: app.get_list_of_templates
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        GetListOfTemplates:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /GetListOfTemplates
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: SkillTrackTable
+      Environment:
+        Variables:
+          TABLE_NAME: SkillTrackTable
   #----------------------------------------------------------------------ENDPOINT DEFINITION SECTION---------------------------------------------------------------------------------------#
 
 

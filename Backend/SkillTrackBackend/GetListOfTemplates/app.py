@@ -1,14 +1,15 @@
-'''
-/GetCourseData
-
-GET,
-
-required input: Course_ID as a query parameter in the URL
 
 '''
+
+/GetListOfTemplates
+
+#This particular method isn't a particulalty computationally efficient way of getting the course templates, but it will do for now until we can get around to making an improved version
+'''
+
 import json
 import os
 import boto3
+from boto3.dynamodb.conditions import Attr
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["TABLE_NAME"])
@@ -17,7 +18,6 @@ table = dynamodb.Table(os.environ["TABLE_NAME"])
 GlobalHeaders ={"Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "Content-Type,Authorization",
             "Access-Control-Allow-Methods": "GET,OPTIONS"}
-
 
 
 
@@ -30,24 +30,17 @@ def normalize_string_sets(item):
     return item
 
 
-def get_course_information(event, context):
+def get_list_of_templates(event, context):
+
+
 
     claims = event["requestContext"]["authorizer"]["claims"]
     calling_user_email = claims.get("email")
 
     statusCode = 0
     output_body =       ""
-    courseID_to_get_info_about = ""
-    try:
-        courseID_to_get_info_about = event["queryStringParameters"]["Course_ID"]
-    except:
-        statusCode = 400
-        output_body = "Incorrectly formatted API call"
-        return {
-            "statusCode": statusCode,
-            "headers": GlobalHeaders,       
-            "body": json.dumps(output_body)
-        }
+
+
 
     try:
         #first we verify if the calling user has either the Teacher or Admin role 
@@ -56,29 +49,31 @@ def get_course_information(event, context):
 
         if not ("Admin" in user_roles) and not ("Teacher" in user_roles):
             statusCode = 403
-            output_body = "Error: You do not have permission to view class details"
+            output_body = "Error: You do not have permission to view template details"
             return{
                 "statusCode": statusCode,
                 "headers": GlobalHeaders,       
                 "body": json.dumps(output_body)
             }
         
-        course_info = table.get_item(Key={"ID": "COURSE#"+ courseID_to_get_info_about }).get("Item")
-        
-        course_info = normalize_string_sets(course_info)
-        
+        templates_response = table.scan(
+            FilterExpression=Attr("ID").begins_with("COURSE_TEMPLATE#")
+        )
+
+        templates = templates_response["Items"]
+
+        for i in range(len(templates)):
+            templates[i] = normalize_string_sets(templates[i])
+
+
+        output_body = templates
         statusCode = 200
-        output_body = course_info
-    
+        print(output_body)
+
     except:
         statusCode = 500
-        output_body = "error reading data from the database"
-        return{
-            "statusCode": statusCode,
-            "headers": GlobalHeaders,       
-            "body": json.dumps(output_body)
-        }
-    
+        output_body = "Error reading data from the table."
+
 
     return{
         "statusCode": statusCode,
