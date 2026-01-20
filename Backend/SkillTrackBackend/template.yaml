@@ -10,6 +10,7 @@ Globals:
   Function:
     Timeout: 3
 
+#This defines the basic API, and the fact that the API endpoints are protected by the Cognito Authorizor. The Cognito stuff is defined further down.
 Resources:
   MyApi:
     Type: AWS::Serverless::Api
@@ -27,6 +28,7 @@ Resources:
             UserPoolArn: !GetAtt MyCognitoUserPool.Arn
 
   
+  #This defines the SkillTrack DynamoDB table.
   SkillTrackTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -42,6 +44,12 @@ Resources:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
   
+  #----------------------------------------------------------------------ENDPOINT DEFINITION SECTION---------------------------------------------------------------------------------------#
+  #Notes: Currently all json-body-input validation is done WITHIN each function, rather than on this level. We could do it here as well (or instead) but it it should be more portable checking inside.
+  #may be worth adding validation here as well at some point 
+
+  #/hello
+  #This is a simple function that returns mock user data to the frontend.
   HelloWorldFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -64,6 +72,7 @@ Resources:
         Variables:
           TABLE_NAME: SkillTrackTable
 
+  #/FetchUserData
   #Used to Fetch the information of the logged in user
   FetchUserDataFunction:
     Type: AWS::Serverless::Function
@@ -75,7 +84,7 @@ Resources:
         - x86_64
       Events:
         FetchUserData:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api 
           Properties:
             RestApiId: !Ref MyApi
             Path: /FetchUserData
@@ -87,9 +96,8 @@ Resources:
         Variables:
           TABLE_NAME: SkillTrackTable
 
-
-#####################
-  #Currently no input validatoin is being done here for the required fields, optional, but consider doing it later on.
+  #/CheckStudentOff
+  #Used to check a student off if the caller has the permission
   CheckStudentOffFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -100,7 +108,7 @@ Resources:
         - x86_64
       Events:
         CheckStudentOff:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api 
           Properties:
             RestApiId: !Ref MyApi
             Path: /CheckStudentOff
@@ -112,7 +120,8 @@ Resources:
         Variables:
           TABLE_NAME: SkillTrackTable
 
-
+  #/CreateCourseFromTemplate
+  #Used by a teacher to port a course template to an actual course that they are teaching
   CreateCourseFromTemplateFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -135,8 +144,34 @@ Resources:
         Variables:
           TABLE_NAME: SkillTrackTable
 
-#####################
+  #/AddStudentToCourse
+  #Adds student to a course (typically a course if made from a template first, then you can add students to it with this endpoint)
+  AddStudentToCourseFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: AddStudentToCourse/
+      Handler: app.add_student_to_course
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        AddStudentToCourse:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /AddStudentToCourse
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: SkillTrackTable
+      Environment:
+        Variables:
+          TABLE_NAME: SkillTrackTable
 
+  #----------------------------------------------------------------------ENDPOINT DEFINITION SECTION---------------------------------------------------------------------------------------#
+
+
+  #These blocks define our user pool for congito.
   MyCognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -156,8 +191,11 @@ Resources:
     Properties:
       UserPoolId: !Ref MyCognitoUserPool
       ClientName: MyUserPoolClient
-      GenerateSecret: false  
+      GenerateSecret: false
 
+
+
+#Some outputs that help us see what ends up being made. This isn't actually necessary, and has not been updated since the initial /hello endpoint creation
 Outputs:
   HelloWorldApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
