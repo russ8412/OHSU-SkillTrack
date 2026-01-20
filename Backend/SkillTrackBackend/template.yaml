@@ -168,6 +168,29 @@ Resources:
         Variables:
           TABLE_NAME: SkillTrackTable
 
+
+  GetCourseInformationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetCourseInformation/
+      Handler: app.get_course_information
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        GetCourseInformation:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /GetCourseInformation
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: SkillTrackTable
+      Environment:
+        Variables:
+          TABLE_NAME: SkillTrackTable
+
   #----------------------------------------------------------------------ENDPOINT DEFINITION SECTION---------------------------------------------------------------------------------------#
 
 
