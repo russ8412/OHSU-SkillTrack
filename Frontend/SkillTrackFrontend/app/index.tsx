@@ -54,6 +54,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000000',
   },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'center',
+  },
+  profileButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+  },
+  profileButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '500',
+  },
   logoutButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -202,6 +218,10 @@ export default function CourseListScreen() {
     } catch (error) {
       console.error('Error signing out:', error);
     }
+  };
+
+  const handleProfilePress = () => {
+    router.push('/profile' as any);
   };
 
   // Fetch data from API
@@ -366,14 +386,19 @@ export default function CourseListScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header with logout button */}
+      {/* Header with profile and logout buttons */}
       <View style={styles.headerContainer}>
         <Text style={styles.headerTitle}>
           Year {selectedYear || 'All'}
         </Text>
-        <Pressable onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </Pressable>
+        <View style={styles.headerButtons}>
+          <Pressable onPress={handleProfilePress} style={styles.profileButton}>
+            <Text style={styles.profileButtonText}>Profile</Text>
+          </Pressable>
+          <Pressable onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={styles.logoutText}>Logout</Text>
+          </Pressable>
+        </View>
       </View>
       
       {/* Search Bar */}

@@ -22,6 +22,13 @@ export default function RootLayout() {
             }} 
           />
           <Stack.Screen 
+            name="profile" 
+            options={{ 
+              headerTitle: 'My Profile',
+              headerBackVisible: false,
+            }} 
+          />
+          <Stack.Screen 
             name="course/[id]" 
             options={{ 
               headerTitle: 'Course',
