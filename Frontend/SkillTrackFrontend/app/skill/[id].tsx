@@ -113,7 +113,7 @@ export default function SkillDetailScreen() {
         }
 
         // Get all data to verify skill status
-        const response = await fetch(`${BASE_URL}/hello`, {
+        const response = await fetch(`${BASE_URL}/FetchUserData`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

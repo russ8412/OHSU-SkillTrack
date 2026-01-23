@@ -53,8 +53,8 @@ export default function CourseSkillsScreen() {
         return;
       }
 
-      console.log('Fetching all data from /hello endpoint');
-      const response = await fetch(`${BASE_URL}/hello`, {
+      console.log('Fetching all data from /FetchUserData endpoint');
+      const response = await fetch(`${BASE_URL}/FetchUserData`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -97,6 +97,7 @@ export default function CourseSkillsScreen() {
         }
       }
       //fallback mock data if no skills found. only for testing purposes
+      // need to figure out why api isnt returning skills
       if (courseSkills.length === 0) {
         console.log('No skills found in API response, using fallback data');
         const mockSkills: Skill[] = [
