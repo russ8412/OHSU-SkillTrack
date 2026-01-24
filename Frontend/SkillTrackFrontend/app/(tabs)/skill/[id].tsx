@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView, Linking } from 'react-native';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { BASE_URL } from '../../src/constants/api';
+import { BASE_URL } from '../../../src/constants/api';
 
 interface SkillDetailData {
   skillName: string;

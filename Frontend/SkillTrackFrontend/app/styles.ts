@@ -8,9 +8,10 @@ const generalStyles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
   },
+  
   // may need to update this because year isn't exactly centered
-  // although, it may be centered properly once logout button is gone...
   headerContainer: {
+    width: '100%',
     flexDirection: 'row',
     marginBottom: 24,
     justifyContent: 'space-between',
@@ -158,32 +159,6 @@ const generalStyles = StyleSheet.create({
   },
   //-------------------- courses-by-year page -------------------- 
 
-  headerRightSpacer: {
-    width: 36,
-    height: 36,
-  },
-
-  yearCard: {
-    backgroundColor: '#F4F4F4',
-    borderRadius: 27,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  
-  yearText: {
-    // figma has font size 25
-    fontSize: 25,
-    fontWeight: '400',
-    color: '#111111',
-  },
-  
-  yearProgressText: {
-    fontSize: 15,
-    fontWeight: '400',
-    color: '#000000',
-  },
 });
 
 export default generalStyles;

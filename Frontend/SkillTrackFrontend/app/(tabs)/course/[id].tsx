@@ -1,8 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { View, Text, Pressable, StyleSheet, FlatList, TextInput, ScrollView } from 'react-native';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { BASE_URL } from '../../src/constants/api';
+import { BASE_URL } from '../../../src/constants/api';
+import generalStyles from '@/app/styles';
+import { Ionicons } from '@expo/vector-icons';
+import { AppText } from '@/components/AppText'
+
 
 interface Skill {
   skillName: string;
@@ -14,6 +18,7 @@ interface Course {
   Skills?: Record<string, boolean>;
 }
 
+// NOTE: MUST UPDATE AFTER AARON REMOVES YEARS
 interface YearData {
   Courses?: Course[];
 }
@@ -23,14 +28,13 @@ interface StudentData {
   FirstName?: string | null;
   LastName?: string | null;
   Roles?: string | null;
-  Years?: YearData[];
+  Years?: YearData[]; // NOTE: MUST REMOVE AFTER AARON REMOVES YEARS
 }
 
 export default function CourseSkillsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [skills, setSkills] = useState<Skill[]>([]);
-  const [filteredSkills, setFilteredSkills] = useState<Skill[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'complete' | 'incomplete'>('all');
   const [loading, setLoading] = useState(true);
@@ -72,6 +76,7 @@ export default function CourseSkillsScreen() {
       // Find the specific course in the data structure
       let courseSkills: Skill[] = [];
       
+      // NOTE: MUST UPDATE TO TAKE YEARS OUT
       if (data.Years && Array.isArray(data.Years)) {
         // Year is 1-based index in the UI, but 0-based in the array
         const yearIndex = year - 1;
@@ -114,7 +119,6 @@ export default function CourseSkillsScreen() {
       }
       
       setSkills(courseSkills);
-      setFilteredSkills(courseSkills);
       setLoading(false);
       
     } catch (error) {
@@ -134,8 +138,8 @@ export default function CourseSkillsScreen() {
     ? totalSkills 
     : skills.length;
 
-  // Filter
-  useEffect(() => {
+
+  const filteredSkills = useMemo(() => {
     let filtered = skills;
     
     // Apply status filter
@@ -152,12 +156,8 @@ export default function CourseSkillsScreen() {
       );
     }
     
-    setFilteredSkills(filtered);
+    return filtered;
   }, [searchQuery, filter, skills]);
-
-  const handleSearch = (text: string) => {
-    setSearchQuery(text);
-  };
 
   const handleFilterChange = (newFilter: 'all' | 'complete' | 'incomplete') => {
     setFilter(newFilter);
@@ -175,13 +175,15 @@ export default function CourseSkillsScreen() {
     });
   };
 
-  const getStatusColor = (status: boolean) => {
-    return status ? '#34C759' : '#FF9500';
-  };
+  // 
+  // const getStatusColor = (status: boolean) => {
+  //   return status ? '#34C759' : '#FF9500';
+  // };
 
-  const getStatusText = (status: boolean) => {
-    return status ? 'Complete' : 'Incomplete';
-  };
+  // NOTE: we could do something like this for the checkmark prolly
+  // const getStatusText = (status: boolean) => {
+  //   return status ? 'Complete' : 'Incomplete';
+  // };
 
   const renderSkillItem = ({ item }: { item: Skill }) => (
     <Pressable 
@@ -189,52 +191,64 @@ export default function CourseSkillsScreen() {
       onPress={() => handleSkillPress(item)}
     >
       <View style={styles.skillInfo}>
-        <Text style={styles.skillName}>{item.skillName}</Text>
+        <AppText style={styles.skillName}>{item.skillName}</AppText>
         <View style={[
-          styles.statusBadge,
-          { backgroundColor: item.status ? '#E8F5E9' : '#FFF4E5' }
+          // styles.statusBadge,
+          // { backgroundColor: item.status ? '#E8F5E9' : '#FFF4E5' }
         ]}>
-          <Text style={[
-            styles.statusText,
-            { color: getStatusColor(item.status) }
+          <AppText style={[
+            // styles.statusText,
+            // { color: getStatusColor(item.status) }
           ]}>
-            {getStatusText(item.status)}
-          </Text>
+            {/* {getStatusText(item.status)} */}
+          </AppText>
         </View>
       </View>
-      <Text style={styles.arrow}>›</Text>
+      {/* <AppText style={styles.arrow}>›</AppText> */}
     </Pressable>
   );
 
   return (
     <>
-      <Stack.Screen 
+      {/* <Stack.Screen 
+      // This pmo its not centered so i gave up
         options={{
           headerTitle: courseName,
           headerBackTitle: 'Back',
         }}
-      />
-      <View style={styles.container}>
+    /> */}
+      <View style={generalStyles.container}>
         {/* Course Info */}
         <View style={styles.courseInfo}>
-          <Text style={styles.courseTitle}>{courseName}</Text>
-          <Text style={styles.yearText}>Year {year}</Text>
-          <View style={styles.progressContainer}>
+          <View>
+            <Pressable
+            onPress={() => router.replace('/')}
+            hitSlop={10} // this lets users tap slightly outside the icon
+            accessibilityLabel="Back"
+            >
+            <Ionicons name="arrow-back-outline" size={40} color="#000000" />
+            </Pressable>
+            <AppText style={styles.courseTitle}>{courseName}</AppText>
+            <Ionicons name="checkmark-circle-outline" size={40} color="#2F6BFF" />
+          </View>
+          {/* <Text style={styles.yearText}>Year {year}</Text> */}
+          {/* <View style={styles.progressContainer}>
             <Text style={styles.progressText}>
               {completedSkills}/{totalSkillsCount} skills complete
             </Text>
-          </View>
+          </View> */}
         </View>
         
         {/* Search Bar */}
-        <View style={styles.searchContainer}>
+        <View style={generalStyles.searchContainer}>
           <TextInput
-            style={styles.searchInput}
+            style={generalStyles.searchInput}
             placeholder="Search"
             placeholderTextColor="#8E8E93"
             value={searchQuery}
-            onChangeText={handleSearch}
+            onChangeText={setSearchQuery}
           />
+          <Ionicons name="search" size={30} color="#9AA0A6" />
         </View>
 
         {/* Filter Buttons */}
@@ -251,12 +265,12 @@ export default function CourseSkillsScreen() {
               ]}
               onPress={() => handleFilterChange('all')}
             >
-              <Text style={[
+              <AppText style={[
                 styles.filterButtonText,
                 filter === 'all' && styles.activeFilterButtonText
               ]}>
                 All Skills
-              </Text>
+              </AppText>
             </Pressable>
             
             <Pressable 
@@ -266,12 +280,12 @@ export default function CourseSkillsScreen() {
               ]}
               onPress={() => handleFilterChange('complete')}
             >
-              <Text style={[
+              <AppText style={[
                 styles.filterButtonText,
                 filter === 'complete' && styles.activeFilterButtonText
               ]}>
                 Complete
-              </Text>
+              </AppText>
             </Pressable>
             
             <Pressable 
@@ -281,39 +295,41 @@ export default function CourseSkillsScreen() {
               ]}
               onPress={() => handleFilterChange('incomplete')}
             >
-              <Text style={[
+              <AppText style={[
                 styles.filterButtonText,
                 filter === 'incomplete' && styles.activeFilterButtonText
               ]}>
                 Incomplete
-              </Text>
+              </AppText>
             </Pressable>
           </ScrollView>
         </View>
 
         {/* Skills Count */}
-        <View style={styles.resultsHeader}>
+        {/* <View style={styles.resultsHeader}>
           <Text style={styles.resultsText}>
             {filteredSkills.length} skill{filteredSkills.length !== 1 ? 's' : ''}
             {filter === 'complete' ? ' complete' : filter === 'incomplete' ? ' incomplete' : ''}
           </Text>
-        </View>
+        </View> */}
         
         {/* Skills List */}
         {loading ? (
           <View style={styles.centeredContainer}>
-            <Text style={styles.loadingText}>Loading skills...</Text>
+            <AppText style={styles.loadingText}>Loading skills...</AppText>
           </View>
         ) : filteredSkills.length === 0 ? (
+
+          // this is the case where no skills are found
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateIcon}>🔍</Text>
-            <Text style={styles.emptyStateTitle}>No skills found</Text>
-            <Text style={styles.emptyStateText}>
+            <AppText style={styles.emptyStateIcon}>🔍</AppText>
+            <AppText style={styles.emptyStateTitle}>No skills found</AppText>
+            <AppText style={styles.emptyStateText}>
               {searchQuery ? "Try adjusting your search" : 
                filter === 'complete' ? "No complete skills" : 
                filter === 'incomplete' ? "All skills are complete!" : 
                "No skills available"}
-            </Text>
+            </AppText>
           </View>
         ) : (
           <FlatList
@@ -331,58 +347,53 @@ export default function CourseSkillsScreen() {
 
 const styles = StyleSheet.create({
   // ... (keep all existing styles exactly as they were)
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
+  // container: {
+  //   flex: 1,
+  //   backgroundColor: '#FFFFFF',
+  //   paddingHorizontal: 20,
+  //   paddingTop: 20,
+  // },
+
+  // This may be whats not centered ts pmo
   courseInfo: {
-    marginBottom: 24,
     paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
   },
+  
   courseTitle: {
-    fontSize: 28,
+    fontSize: 35,
     fontWeight: 'bold',
     color: '#000000',
     marginBottom: 8,
   },
-  yearText: {
-    fontSize: 17,
-    color: '#8E8E93',
-    marginBottom: 12,
-  },
-  progressContainer: {
-    backgroundColor: '#F2F2F7',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-  },
-  progressText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#8E8E93',
-  },
+  // yearText: {
+  //   fontSize: 17,
+  //   color: '#8E8E93',
+  //   marginBottom: 12,
+  // },
+  // progressContainer: {
+  //   backgroundColor: '#F2F2F7',
+  //   paddingHorizontal: 12,
+  //   paddingVertical: 8,
+  //   borderRadius: 8,
+  //   alignSelf: 'flex-start',
+  // },
+  // progressText: {
+  //   fontSize: 15,
+  //   fontWeight: '500',
+  //   color: '#8E8E93',
+  // },
   searchContainer: {
     marginBottom: 16,
   },
-  searchInput: {
-    backgroundColor: '#F2F2F7',
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 17,
-    color: '#000000',
-  },
   filterContainer: {
     marginBottom: 16,
+    alignSelf: 'center',
   },
+
   filterScroll: {
     maxHeight: 40,
   },
+
   filterButton: {
     backgroundColor: '#F2F2F7',
     paddingHorizontal: 16,
@@ -394,21 +405,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#007AFF',
   },
   filterButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#8E8E93',
+    fontSize: 15,
+    fontWeight: '400',
+    color: '#000000',
   },
   activeFilterButtonText: {
-    color: '#FFFFFF',
+    color: '#F4F4F4',
   },
-  resultsHeader: {
-    marginBottom: 16,
-  },
-  resultsText: {
-    fontSize: 15,
-    color: '#8E8E93',
-    fontWeight: '500',
-  },
+
+  // resultsHeader: {
+  //   marginBottom: 16,
+  // },
+
+  // resultsText: {
+  //   fontSize: 15,
+  //   color: '#8E8E93',
+  //   fontWeight: '500',
+  // },
+
   centeredContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -422,10 +436,10 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   skillCard: {
-    backgroundColor: '#F2F2F7',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 8,
+    backgroundColor: '#F4F4F4',
+    borderRadius: 30,
+    padding: 12,
+    marginBottom: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -436,23 +450,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   skillName: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: '500',
     color: '#000000',
     flex: 1,
     marginRight: 12,
   },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    minWidth: 85,
-    alignItems: 'center',
-  },
-  statusText: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
+  // statusBadge: {
+  //   paddingHorizontal: 10,
+  //   paddingVertical: 4,
+  //   borderRadius: 12,
+  //   minWidth: 85,
+  //   alignItems: 'center',
+  // },
+  // statusText: {
+  //   fontSize: 15,
+  //   fontWeight: '600',
+  // },
   arrow: {
     fontSize: 24,
     color: '#C7C7CC',

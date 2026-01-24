@@ -1,11 +1,11 @@
 // app/index.tsx
 import { AppText } from "@/components/AppText";
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, Pressable, StyleSheet, FlatList, TextInput, ScrollView } from 'react-native';
-import { fetchAuthSession, signOut } from 'aws-amplify/auth';
-import { BASE_URL } from '../src/constants/api';
+import { View, Pressable, FlatList, TextInput, ScrollView } from 'react-native';
+import { fetchAuthSession } from 'aws-amplify/auth';
+import { BASE_URL } from '../../src/constants/api';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import generalStyles from './styles';
+import generalStyles from '../styles';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -15,6 +15,7 @@ interface Course {
   courseName: string;
   totalSkills: number;
   completedSkills: number;
+  // will have to remove year after aaron refactors stuff i think
   year: number;
   skills: Array<{
     skillName: string;
@@ -24,6 +25,7 @@ interface Course {
 
 // Defines the structure of the student data returned by the API
 // Students have Years, which contain Courses, which contain Skills
+// NOTE: THIS MAY LOOK DIFFERENT AFTER AARON REMOVES YEARS
 interface StudentData {
   Email: string;
   FirstName?: string | null;
@@ -43,12 +45,8 @@ interface StudentData {
   >;
 }
 
-
-
-// Now define the component function AFTER styles
 export default function CourseListScreen() {
   const [courses, setCourses] = useState<Course[]>([]);
-  // const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState<number | null>(1);
@@ -57,6 +55,7 @@ export default function CourseListScreen() {
   const params = useLocalSearchParams<{ year?: string }>();
 
   // Set selected year from URL params on initial load
+  // NOTE: WILL HAVE TO UPDATE SINCE WERE NOT PASSING IN YEARS ANYMORE
   useEffect(() => {
     if (params?.year) {
       const yearNum = parseInt(params.year, 10);
@@ -65,17 +64,6 @@ export default function CourseListScreen() {
       }
     }
   }, [params?.year]);
-
-
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      // The app will automatically show the login screen
-      // because Authenticator will detect the user is signed out
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
 
   // Fetch data from API
   const fetchCoursesData = useCallback(async () => {
@@ -109,6 +97,7 @@ export default function CourseListScreen() {
       const allCourses: Course[] = [];
       
       // Process years data
+      // NOTE THIS WILL CHANGE AFTER AARON REMOVES YEARS
       const yearsObject = data.Years;
       
       if (yearsObject && typeof yearsObject === 'object') {
@@ -159,6 +148,7 @@ export default function CourseListScreen() {
 
   // Filter courses based on search and year
   // useMemo is more efficient because it only re-computes when courses, selectedYear, or searchQuery changes
+  // NOTE: WILL NEED TO UPDATE WHEN AARON REMOVES YEARS
   const filteredCourses = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
 
@@ -218,6 +208,7 @@ export default function CourseListScreen() {
     </Pressable>
   );
 
+  // loading state... we should probably update this it lwk doesn't look very good
   if (loading) {
     return (
       <View style={generalStyles.loadingContainer}>
@@ -229,28 +220,21 @@ export default function CourseListScreen() {
     );
   }
 
-
-
-  // Get unique years from courses
-  const years = Array.from(new Set(courses.map(course => course.year))).sort((a, b) => a - b); // sort ascending
-
   return (
     <View style={generalStyles.container}>
       {/* Header with logout button */}
       <View style={generalStyles.headerContainer}>
-          <Pressable
-            onPress={() => router.back()}
-            hitSlop={10} // this lets users tap slightly outside the icon
-            accessibilityLabel="Back"
-          >
-            <Ionicons name="checkmark-circle-outline" size={40} color="#2F6BFF" />
-          </Pressable>
+      
+      {/* just a spacer here for now, although it leaves year uncentered */}
+      <View />
+
+        {/* May need to remove ts */}
         <AppText style={generalStyles.headerTitle}>
           Year {selectedYear || 'All'}
         </AppText>
-        <Pressable onPress={handleLogout} style={generalStyles.logoutButton}>
-          <AppText style={generalStyles.logoutText}>Logout</AppText>
-        </Pressable>
+        {/* May need to remove ts */}
+
+        <Ionicons name="checkmark-circle-outline" size={40} color="#2F6BFF" />
       </View>
       
       {/* Search Bar */}
