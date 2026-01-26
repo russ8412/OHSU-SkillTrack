@@ -59,27 +59,17 @@ def lambda_handler(event, context):
                     "FirstName": None,
                     "LastName": None,
                     "Roles": {"Student"},
-                    "Years": {
-                        "1": {
-                            "Courses": {
-                                "NRS-210-2020":{
-                                    "CourseName": "NRS 210: Foundations of Nursing Health Promotion",
-                                    "Skills":{
-                                        "Handwashing - Infection Prevention": True,
-                                        "PPE - Infection Prevention": False                                        
-                                    }
-                                },
-                                "NRS-230-2020":{
-                                    "CourseName":  "NRS 230: Pharmacology I",
-                                    "Skills": {"IM - Medical Admin &...": False, "IV- Medical Admin...": True}
-                                }
+                    "Courses": {
+                        "NRS-210-2020":{
+                            "CourseName": "NRS 210: Foundations of Nursing Health Promotion",
+                            "Skills":{
+                                "Handwashing - Infection Prevention": True,
+                                "PPE - Infection Prevention": False                                        
                             }
                         },
-                        "2": {
-                            "Courses": {}
-                        },
-                        "3": {
-                            "Courses": {}
+                        "NRS-230-2020":{
+                            "CourseName":  "NRS 230: Pharmacology I",
+                            "Skills": {"IM - Medical Admin &...": False, "IV- Medical Admin...": True}
                         }
                     }
                 }

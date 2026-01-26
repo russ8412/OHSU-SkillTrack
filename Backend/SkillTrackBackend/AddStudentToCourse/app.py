@@ -110,17 +110,16 @@ def add_student_to_course(event, context):
             new_course_to_insert_to_student_row["Skills"][skill] = False
 
         
+        #course is fully
 
         #Here we will focus on adding student skills of the course to the student row
         table.update_item(
             Key ={
                 "ID": f"USER#{student_to_add_to_course}"
             },
-            UpdateExpression="SET #Years.#ParticularYear.#Courses.#NEWCOURSE = :course",
-            ConditionExpression="attribute_not_exists(#Years.#ParticularYear.#Courses.#NEWCOURSE)",
+            UpdateExpression="SET #Courses.#NEWCOURSE = :course",
+            ConditionExpression="attribute_not_exists(#Courses.#NEWCOURSE)",
             ExpressionAttributeNames={
-                '#Years':           'Years',
-                "#ParticularYear" : year_in_student_row_to_insert,
                 "#Courses":         'Courses',
                 '#NEWCOURSE':       course_id_to_add_student_to
             },

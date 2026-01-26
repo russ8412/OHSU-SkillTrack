@@ -132,7 +132,7 @@ def create_course_from_template(event, context):
     generated_course_id = template_ID + "-" + str(datetime.now().year)
     course_row_to_insert = {
         "ID": "COURSE#" + generated_course_id,          #courseID with unique extra tag at end (currently just the current year, may modify later)
-        "Year": course_template["Year"],                #extracted from template
+        #"Year": course_template["Year"],                #extracted from template
         "CourseName": course_template["CourseName"],    #extracted from template
         "Skills": course_template["Skills"] ,           #extracted from template
         "Teachers" :{email}                             #calling user assigned as teacher

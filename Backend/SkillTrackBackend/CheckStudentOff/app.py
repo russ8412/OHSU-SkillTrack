@@ -65,10 +65,8 @@ def lambda_handler(event, context):
     student_list = None
     course_id = None
     skill_name = None
-    course_year = None
     try:
         student_list = input_body["Student_List"]
-        course_year = input_body["Course_Year"]
         course_id = input_body["Course_ID"]
         skill_name = input_body["Skill_Name"]
 
@@ -147,10 +145,8 @@ def lambda_handler(event, context):
 
             table.update_item(
                 Key = {"ID": "USER#" + student_email},
-                UpdateExpression = "SET #Years.#ParticularYear.#Courses.#Course_ID.#Skills.#ParticularSkill = :val",
+                UpdateExpression = "SET #Courses.#Course_ID.#Skills.#ParticularSkill = :val",
                 ExpressionAttributeNames={
-                    '#Years':           'Years',
-                    "#ParticularYear" : course_year,
                     "#Courses":         'Courses',
                     "#Course_ID":       course_id,
                     "#Skills":           'Skills',
@@ -159,7 +155,7 @@ def lambda_handler(event, context):
                 ExpressionAttributeValues={
                     ':val': True
                 },
-                ConditionExpression = "attribute_exists(#Years.#ParticularYear.#Courses.#Course_ID.#Skills.#ParticularSkill)"    
+                ConditionExpression = "attribute_exists(#Courses.#Course_ID.#Skills.#ParticularSkill)"    
             )
 
 
