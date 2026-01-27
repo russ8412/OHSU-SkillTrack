@@ -145,12 +145,13 @@ def lambda_handler(event, context):
 
             table.update_item(
                 Key = {"ID": "USER#" + student_email},
-                UpdateExpression = "SET #Courses.#Course_ID.#Skills.#ParticularSkill = :val",
+                UpdateExpression = "SET #Courses.#Course_ID.#Skills.#ParticularSkill.#CheckedOff = :val",
                 ExpressionAttributeNames={
                     "#Courses":         'Courses',
                     "#Course_ID":       course_id,
                     "#Skills":           'Skills',
-                    "#ParticularSkill":  skill_name
+                    "#ParticularSkill":  skill_name,
+                    "#CheckedOff":       'CheckedOff'
                 },
                 ExpressionAttributeValues={
                     ':val': True

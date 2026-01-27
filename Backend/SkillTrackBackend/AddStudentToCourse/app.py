@@ -96,7 +96,6 @@ def add_student_to_course(event, context):
         name_of_course =  new_course_data["CourseName"]
 
 
-
         #this section constructs the course to be inserted into the student row 
         new_course_to_insert_to_student_row ={
             "CourseName": name_of_course,
@@ -104,10 +103,16 @@ def add_student_to_course(event, context):
         }
 
 
-        skills_list = new_course_data["Skills"]
+        #Since skill names have a description field nested within it, we just get a list of the pure skill names by doing .keys()
+        skills_list = new_course_data["Skills"].keys()
 
         for skill in skills_list:
-            new_course_to_insert_to_student_row["Skills"][skill] = False
+            #new_course_to_insert_to_student_row["Skills"][skill] = False
+            new_course_to_insert_to_student_row["Skills"][skill] = {
+                "CheckedOff": False,
+                "DateCheckedOff": "",
+                "CheckedOffBy": ""
+            }
 
         
         #course is fully
@@ -126,8 +131,7 @@ def add_student_to_course(event, context):
             ExpressionAttributeValues={
                 ":course": new_course_to_insert_to_student_row
             }
-        ) 
-    
+        )
 
 
         statusCode = 200
