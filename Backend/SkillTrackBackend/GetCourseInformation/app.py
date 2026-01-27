@@ -53,8 +53,13 @@ def get_course_information(event, context):
         #first we verify if the calling user has either the Teacher or Admin role 
         caller_user_row =  table.get_item(Key= {"ID": "USER#" + calling_user_email}).get("Item")
         user_roles = caller_user_row.get("Roles", [])
+        
+        
+        course_info = table.get_item(Key={"ID": "COURSE#"+ courseID_to_get_info_about }).get("Item")
 
-        if not ("Admin" in user_roles) and not ("Teacher" in user_roles):
+        student_roster = course_info.get("Students", [])
+
+        if not ("Admin" in user_roles) and not ("Teacher" in user_roles) and not(("Student" in user_roles) and (calling_user_email in student_roster) ):
             statusCode = 403
             output_body = "Error: You do not have permission to view class details"
             return{
@@ -63,7 +68,12 @@ def get_course_information(event, context):
                 "body": json.dumps(output_body)
             }
         
-        course_info = table.get_item(Key={"ID": "COURSE#"+ courseID_to_get_info_about }).get("Item")
+
+
+
+        #eliminate student roster if their role is onlt student
+        if(not ("Admin" in user_roles) and not ("Teacher" in user_roles)):
+            course_info.pop("Students" , None)
         
         course_info = normalize_string_sets(course_info)
         
