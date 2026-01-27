@@ -16,7 +16,7 @@ interface Course {
   totalSkills: number;
   completedSkills: number;
   // will have to remove year after aaron refactors stuff i think
-  year: number;
+  // year: number;
   skills: Array<{
     skillName: string;
     status: boolean;
@@ -31,17 +31,13 @@ interface StudentData {
   FirstName?: string | null;
   LastName?: string | null;
   Roles?: string | null;
-  Years?: Record<
-    string,
-    {
-      Courses?: Record<
-      string,
-      {
-        CourseName?: string;
-        Skills?: Record<string, boolean>;
-      }
-      >;
-    }
+
+  Courses?: Record<
+  string,
+  {
+    CourseName?: string;
+    Skills?: Record<string, boolean>;
+  }
   >;
 }
 
@@ -49,21 +45,21 @@ export default function CourseListScreen() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
-  const [selectedYear, setSelectedYear] = useState<number | null>(1);
+  // const [selectedYear, setSelectedYear] = useState<number | null>(1);
 
   const router = useRouter();
-  const params = useLocalSearchParams<{ year?: string }>();
+  // const params = useLocalSearchParams<{ year?: string }>();
 
   // Set selected year from URL params on initial load
   // NOTE: WILL HAVE TO UPDATE SINCE WERE NOT PASSING IN YEARS ANYMORE
-  useEffect(() => {
-    if (params?.year) {
-      const yearNum = parseInt(params.year, 10);
-      if (!Number.isNaN(yearNum)) {
-        setSelectedYear(yearNum);
-      }
-    }
-  }, [params?.year]);
+  // useEffect(() => {
+  //   if (params?.year) {
+  //     const yearNum = parseInt(params.year, 10);
+  //     if (!Number.isNaN(yearNum)) {
+  //       setSelectedYear(yearNum);
+  //     }
+  //   }
+  // }, [params?.year]);
 
   // Fetch data from API
   const fetchCoursesData = useCallback(async () => {
@@ -98,35 +94,30 @@ export default function CourseListScreen() {
       
       // Process years data
       // NOTE THIS WILL CHANGE AFTER AARON REMOVES YEARS
-      const yearsObject = data.Years;
+      // const yearsObject = data.Years;
+      // process courses directly rather than through years now
+      const coursesObject = data.Courses;
       
-      if (yearsObject && typeof yearsObject === 'object') {
-        Object.entries(yearsObject).forEach(([yearIndex, yearData]) => {
-          const yearNum = parseInt(yearIndex, 10); // Convert year index to number unsure if needed...
-          if (Number.isNaN(yearNum)) return; // Skip invalid year indices
 
-          const coursesObject = yearData?.Courses;
-          if (!coursesObject || typeof coursesObject !== 'object') return; // Skip if no courses (shouldn't really happen)
+      if (coursesObject && typeof coursesObject === 'object') {
+        Object.entries(coursesObject).forEach(([courseId, course]) => {
+          const courseName = course?.CourseName || 'Unnamed Course'; // in the case of a missing name... shouldn't happen ideally
+          const skills = course?.Skills || {}; // Default to empty object if no skills
+          const skillEntries = Object.entries(skills); // [ [skillName, status], ... ]
+          
+          // Count completed skills (status === true)
+          const completedCount = skillEntries.filter(([_, status]) => status === true).length;
 
-          Object.entries(coursesObject).forEach(([courseId, course]) => {
-            const courseName = course?.CourseName || 'Unnamed Course'; // in the case of a missing name... shouldn't happen ideally
-            const skills = course?.Skills || {}; // Default to empty object if no skills
-            const skillEntries = Object.entries(skills); // [ [skillName, status], ... ]
-            
-            // Count completed skills (status === true)
-            const completedCount = skillEntries.filter(([_, status]) => status === true).length;
-
-            allCourses.push({
-              courseId,
-              courseName,
-              totalSkills: skillEntries.length,
-              completedSkills: completedCount,
-              year: yearNum,
-              skills: skillEntries.map(([skillName, status]) => ({
-                skillName,
-                status: status === true,
-              })),
-            });
+          allCourses.push({
+            courseId,
+            courseName,
+            totalSkills: skillEntries.length,
+            completedSkills: completedCount,
+            // year: yearNum,
+            skills: skillEntries.map(([skillName, status]) => ({
+              skillName,
+              status: status === true,
+            })),
           });
         });
       }
@@ -152,14 +143,12 @@ export default function CourseListScreen() {
   const filteredCourses = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
 
-    const filterByYear = courses.filter((c) => c.year === selectedYear);
+    if (!q) return courses;
 
-    if (!q) return filterByYear;
-
-    return filterByYear.filter((c) => 
+    return courses.filter((c) => 
       (c.courseName ?? '').toLowerCase().includes(q)
     );
-  }, [courses, selectedYear, searchQuery]);
+  }, [courses, searchQuery]);
 
   // handleCoursePress simply takes us to the path below where we have course information
   const handleCoursePress = (course: Course) => {
@@ -168,7 +157,6 @@ export default function CourseListScreen() {
       params: { 
         id: encodeURIComponent(course.courseName),
         courseId: course.courseId,
-        year: course.year.toString(),
         totalSkills: course.totalSkills.toString(),
         completedSkills: course.completedSkills.toString(),
         skills: JSON.stringify(course.skills)
@@ -189,7 +177,7 @@ export default function CourseListScreen() {
       onPress={() => handleCoursePress(item)}
     >
       <View style={generalStyles.courseHeader}>
-        <AppText style={generalStyles.courseName}>{item.courseName}</AppText>
+        <AppText style={generalStyles.cardNameText}>{item.courseName}</AppText>
 
           <AppText style={generalStyles.courseProgressText}>
             {item.completedSkills}/{item.totalSkills} skills complete
@@ -212,7 +200,7 @@ export default function CourseListScreen() {
   if (loading) {
     return (
       <View style={generalStyles.loadingContainer}>
-        <AppText style={generalStyles.loadingHeader}>Loading courses...</AppText>
+        <AppText style={generalStyles.loadingText}>Loading courses...</AppText>
         <Pressable style={generalStyles.refreshButton} onPress={fetchCoursesData}>
           <AppText style={generalStyles.refreshButtonText}>Refresh</AppText>
         </Pressable>
@@ -225,15 +213,11 @@ export default function CourseListScreen() {
       {/* Header with logout button */}
       <View style={generalStyles.headerContainer}>
       
-      {/* just a spacer here for now, although it leaves year uncentered */}
+      {/* just a spacer here for now, although it leaves "SkillTrack" uncentered */}
       <View />
-
-        {/* May need to remove ts */}
         <AppText style={generalStyles.headerTitle}>
-          Year {selectedYear || 'All'}
+          SkillTrack
         </AppText>
-        {/* May need to remove ts */}
-
         <Ionicons name="checkmark-circle-outline" size={40} color="#2F6BFF" />
       </View>
       
@@ -263,7 +247,7 @@ export default function CourseListScreen() {
         <FlatList
           data={filteredCourses}
           renderItem={renderCourseItem}
-          keyExtractor={(item) => `${item.courseId}-${item.year}`}
+          keyExtractor={(item) => `${item.courseId}`}
           contentContainerStyle={generalStyles.listContent}
           showsVerticalScrollIndicator={false}
         />

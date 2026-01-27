@@ -23,6 +23,7 @@ const generalStyles = StyleSheet.create({
     fontSize: 35,
     fontWeight: '400',
     color: '#111111',
+    textAlign: 'center',
   },
 
   searchContainer: {
@@ -46,24 +47,62 @@ const generalStyles = StyleSheet.create({
   },
 
   listContent: {
-    paddingTop: 4,
-    gap: 20  },
-  // -------------------- general styles --------------------
-
-  //-------------------- courses-by-year page -------------------- 
-    loadingContainer: {
+    paddingBottom: 20,
+  },  
+  
+  // may want to update to be black?
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
   },
 
-  loadingHeader: {
+  loadingText: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#4972FF',
     marginBottom: 4,
   },
+
+  // styling for course name and skill names
+  cardNameText: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#000000',
+    flex: 1,
+    marginRight: 12,
+  },
+
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 60,
+  },
+
+  emptyStateIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+    color: '#8E8E93',
+  },
+
+  emptyStateTitle: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 8,
+  },
+
+  emptyStateText: {
+    fontSize: 17,
+    color: '#8E8E93',
+    textAlign: 'center',
+    paddingHorizontal: 40,
+  },
+  // -------------------- general styles --------------------
+
+  //-------------------- courses page -------------------- 
 
   logoutButton: {
     paddingHorizontal: 12,
@@ -82,18 +121,11 @@ const generalStyles = StyleSheet.create({
     backgroundColor: '#F4F4F4',
     borderRadius: 30,
     padding: 16,
+    marginBottom: 20,
   },
 
   courseHeader: {
     marginBottom: 12,
-  },
-
-  courseName: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#000000',
-    flex: 1,
-    marginRight: 12,
   },
 
   courseProgressText: {
@@ -130,35 +162,62 @@ const generalStyles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
   },
+  //-------------------- courses page -------------------- 
 
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 60,
-  },
+  // ------------------- skills page --------------------
 
-  emptyStateIcon: {
-    fontSize: 48,
-    marginBottom: 16,
-    color: '#8E8E93',
-  },
-
-  emptyStateTitle: {
-    fontSize: 22,
-    fontWeight: '600',
+  // may want to consider splitting courseID and name in DB to reflect figma
+  courseHeaderTitle: {
+    fontSize: 22.5,
     color: '#000000',
-    marginBottom: 8,
-  },
-
-  emptyStateText: {
-    fontSize: 17,
-    color: '#8E8E93',
+    maxWidth: "70%",
     textAlign: 'center',
-    paddingHorizontal: 40,
   },
-  //-------------------- courses-by-year page -------------------- 
 
+    filterContainer: {
+    marginBottom: 16,
+    alignSelf: 'center',
+  },
+
+  filterScroll: {
+    maxHeight: 40,
+  },
+
+  filterButton: {
+    backgroundColor: '#F2F2F7',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 12,
+  },
+  activeFilterButton: {
+    backgroundColor: '#4972FF',
+  },
+  filterButtonText: {
+    fontSize: 15,
+    fontWeight: '400',
+    color: '#000000',
+  },
+  activeFilterButtonText: {
+    color: '#F4F4F4',
+  },
+
+  // may consider generalizing this style to just be cars
+  skillCard: {
+  backgroundColor: '#F4F4F4',
+  borderRadius: 30,
+  padding: 12,
+  marginBottom: 20,
+  // flexDirection: 'row',
+  // alignItems: 'center',
+  // justifyContent: 'space-between',
+  },
+
+  skillInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 });
 
 export default generalStyles;

@@ -35,7 +35,7 @@ export default function TabsLayout() {
               bottom: 45,
               height: 50,
               borderRadius: 36,
-              backgroundColor: "#3F63FF",
+              backgroundColor: "#4972FF",
               shadowColor: "#000",
               shadowOpacity: 0.25,
               shadowRadius: 12,
@@ -64,6 +64,19 @@ export default function TabsLayout() {
               size={size ?? 26}
               color={color}
             />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="resources"
+        options={{
+          tabBarIcon: ({ color, size}) => (
+            <Ionicons
+              name="library-outline"
+              size={size ?? 26}
+              color={color}
+              />
           ),
         }}
       />

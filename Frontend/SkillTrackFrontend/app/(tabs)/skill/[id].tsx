@@ -4,6 +4,9 @@ import { View, Text, Pressable, StyleSheet, ScrollView, Linking } from 'react-na
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { BASE_URL } from '../../../src/constants/api';
+import generalStyles from '@/app/styles';
+import { Ionicons } from '@expo/vector-icons';
+import { AppText } from '@/components/AppText'
 
 interface SkillDetailData {
   skillName: string;
@@ -76,9 +79,17 @@ export default function SkillDetailScreen() {
   const skillName = decodeURIComponent(params.id as string);
   const status = params.status as string || 'incomplete';
   const courseName = decodeURIComponent(params.courseName as string) || 'Unknown Course';
-  const year = params.year as string || '1';
 
   const isComplete = status === 'complete';
+
+  const handleBack = () => {
+    if (courseName) {
+      router.replace({ pathname: "/course/[id]", params: { id: courseName }});
+    } else {
+      router.back(); // hopefully the top works so this doesnt take us to the profile page
+      console.log("Error going back to course ", {courseName} )
+    }
+  }
 
   // Get skill details from mock data
   const skillData = mockSkillDetails[skillName] || {
@@ -157,7 +168,6 @@ export default function SkillDetailScreen() {
       console.log('Skill completion requested:', {
         skillName,
         courseName,
-        year,
         studentEmail: 'test@example.com' // Would get from auth session
       });
       
@@ -176,8 +186,8 @@ export default function SkillDetailScreen() {
             headerBackTitle: 'Back',
           }}
         />
-        <View style={styles.container}>
-          <Text style={styles.loadingText}>Loading skill details...</Text>
+        <View style={generalStyles.container}>
+          <AppText style={styles.loadingText}>Loading skill details...</AppText>
         </View>
       </>
     );
@@ -185,126 +195,123 @@ export default function SkillDetailScreen() {
 
   return (
     <>
-      <Stack.Screen 
-        options={{
-          headerTitle: skillData.skillName,
-          headerBackTitle: 'Back',
-        }}
-      />
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={generalStyles.container}>
+        <View style={generalStyles.headerContainer}>
+          <Pressable
+          onPress={() => handleBack()}
+              hitSlop={10} // this lets users tap slightly outside the icon
+              accessibilityLabel="Back"
+              >
+              <Ionicons name="arrow-back-outline" size={40} color="#000000" />
+              </Pressable>
+              <AppText style={generalStyles.courseHeaderTitle}>{courseName}</AppText>
+              <Ionicons name="checkmark-circle-outline" size={40} color="#2F6BFF" />
+        </View>
+
+      <ScrollView style={generalStyles.container} showsVerticalScrollIndicator={false}>
         {/* Status Badge */}
         <View style={styles.statusSection}>
-          <View style={[
-            styles.statusBadge,
-            { backgroundColor: isComplete ? '#E8F5E9' : '#FFF4E5' }
-          ]}>
-            <Text style={[
-              styles.statusText,
-              { color: isComplete ? '#34C759' : '#FF9500' }
-            ]}>
-              {isComplete ? 'Complete' : 'Incomplete'}
-            </Text>
+          {isComplete ? (
+            <View>
+                <Ionicons name="checkmark-outline" size={20} color="#4972FF" />
+                <AppText style={styles.statusText}>Complete</AppText>
           </View>
-          <Text style={styles.courseName}>{courseName} (Year {year})</Text>
+        ) : (
+          <AppText style={styles.statusText}>Incomplete</AppText>
+        )}
         </View>
 
         {/* Details Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Details</Text>
-          <Text style={styles.descriptionText}>{skillData.description}</Text>
+          <AppText style={styles.sectionTitle}>Details</AppText>
+          <AppText style={styles.descriptionText}>{skillData.description}</AppText>
         </View>
 
         {/* Requirements Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Requirements</Text>
+          <AppText style={styles.sectionTitle}>Requirements</AppText>
           {skillData.requirements.map((requirement, index) => (
             <View key={index} style={styles.requirementItem}>
-              <Text style={styles.bullet}>•</Text>
-              <Text style={styles.requirementText}>{requirement}</Text>
+              <AppText style={styles.bullet}>•</AppText>
+              <AppText style={styles.requirementText}>{requirement}</AppText>
             </View>
           ))}
         </View>
 
         {/* Resources Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Resources</Text>
+          <AppText style={styles.sectionTitle}>Resources</AppText>
           {skillData.resources.map((resource, index) => (
             <Pressable
               key={index}
               style={styles.resourceItem}
               onPress={() => handleResourcePress(resource.url)}
             >
-              <Text style={styles.resourceName}>{resource.name}</Text>
-              <Text style={styles.resourceArrow}>›</Text>
+              <AppText style={styles.resourceName}>{resource.name}</AppText>
+              <AppText style={styles.resourceArrow}>›</AppText>
             </Pressable>
           ))}
         </View>
 
         {/* Completion Details */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Completion Details</Text>
-          <Text style={styles.completionText}>
+          <AppText style={styles.sectionTitle}>Completion Details</AppText>
+          <AppText style={styles.completionText}>
             {skillData.completionDetails}
-          </Text>
+          </AppText>
         </View>
 
         {/* Action Button */}
         <Pressable 
           style={[
             styles.actionButton,
-            { backgroundColor: isComplete ? '#34C759' : '#007AFF' }
+            { backgroundColor: isComplete ? '#4972FF' : '#F4F4F4' }
           ]}
           onPress={handleGetCheckedOff}
         >
-          <Text style={styles.actionButtonText}>
+          <AppText style={styles.actionButtonText}>
             {isComplete ? 'Skill Complete' : 'Get Checked Off'}
-          </Text>
+          </AppText>
         </Pressable>
 
         {/* Spacer */}
         <View style={styles.spacer} />
       </ScrollView>
+    </View>
     </>
   );
 }
 
 const styles = StyleSheet.create({
   // ... (keep all existing styles exactly as they were)
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
+
   statusSection: {
     marginBottom: 30,
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
-  statusBadge: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 16,
-    marginBottom: 12,
-  },
+
   statusText: {
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: '600',
+    color: '#4972FF'
   },
-  courseName: {
-    fontSize: 17,
-    color: '#8E8E93',
-  },
+
+  // courseName: {
+  //   fontSize: 17,
+  //   color: '#8E8E93',
+  // },
   section: {
     marginBottom: 30,
   },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#000000',
     marginBottom: 16,
   },
+
   descriptionText: {
-    fontSize: 17,
+    fontSize: 20,
     color: '#000000',
     lineHeight: 24,
   },
@@ -315,12 +322,12 @@ const styles = StyleSheet.create({
   },
   bullet: {
     fontSize: 17,
-    color: '#007AFF',
+    color: '#000000',
     marginRight: 8,
     lineHeight: 24,
   },
   requirementText: {
-    fontSize: 17,
+    fontSize: 20,
     color: '#000000',
     lineHeight: 24,
     flex: 1,
@@ -330,14 +337,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#F2F2F7',
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginBottom: 8,
+    borderRadius: 30,
+    padding: 16,
+    marginBottom: 10,
   },
   resourceName: {
     fontSize: 17,
-    color: '#007AFF',
+    color: '#4972FF',
     fontWeight: '500',
   },
   resourceArrow: {
@@ -346,9 +352,10 @@ const styles = StyleSheet.create({
     fontWeight: '300',
   },
   completionText: {
-    fontSize: 17,
-    color: '#8E8E93',
-    lineHeight: 24,
+    fontSize: 20,
+    color: '#000000',
+    flexDirection: "row",
+    alignItems: "center"
   },
   actionButton: {
     borderRadius: 12,
@@ -357,7 +364,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   actionButtonText: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: '600',
     color: '#FFFFFF',
   },
