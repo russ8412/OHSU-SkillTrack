@@ -23,6 +23,12 @@ interface Course {
   }>;
 }
 
+interface SkillCheckInfo {
+  CheckedOff: boolean;
+  CheckedOffBy: string;
+  DateCheckedOff: string;
+}
+
 // Defines the structure of the student data returned by the API
 // Students have Years, which contain Courses, which contain Skills
 // NOTE: THIS MAY LOOK DIFFERENT AFTER AARON REMOVES YEARS
@@ -36,7 +42,7 @@ interface StudentData {
   string,
   {
     CourseName?: string;
-    Skills?: Record<string, boolean>;
+    Skills?: Record<string, SkillCheckInfo>;
   }
   >;
 }
@@ -48,19 +54,7 @@ export default function CourseListScreen() {
   // const [selectedYear, setSelectedYear] = useState<number | null>(1);
 
   const router = useRouter();
-  // const params = useLocalSearchParams<{ year?: string }>();
-
-  // Set selected year from URL params on initial load
-  // NOTE: WILL HAVE TO UPDATE SINCE WERE NOT PASSING IN YEARS ANYMORE
-  // useEffect(() => {
-  //   if (params?.year) {
-  //     const yearNum = parseInt(params.year, 10);
-  //     if (!Number.isNaN(yearNum)) {
-  //       setSelectedYear(yearNum);
-  //     }
-  //   }
-  // }, [params?.year]);
-
+  
   // Fetch data from API
   const fetchCoursesData = useCallback(async () => {
     try {
@@ -106,7 +100,8 @@ export default function CourseListScreen() {
           const skillEntries = Object.entries(skills); // [ [skillName, status], ... ]
           
           // Count completed skills (status === true)
-          const completedCount = skillEntries.filter(([_, status]) => status === true).length;
+          const completedCount = skillEntries.filter(
+            ([_, statusInfo]) => statusInfo.CheckedOff).length;
 
           allCourses.push({
             courseId,
@@ -114,14 +109,13 @@ export default function CourseListScreen() {
             totalSkills: skillEntries.length,
             completedSkills: completedCount,
             // year: yearNum,
-            skills: skillEntries.map(([skillName, status]) => ({
+            skills: skillEntries.map(([skillName, statusInfo]) => ({
               skillName,
-              status: status === true,
+              status: statusInfo.CheckedOff,
             })),
           });
         });
       }
-              
       // console.log('`Course: ${courseName}, Total: ${skillEntries.length}, Completed: ${completedCount}`');
       console.log('Processed courses: ', allCourses);
       

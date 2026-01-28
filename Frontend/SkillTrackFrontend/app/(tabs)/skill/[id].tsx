@@ -19,61 +19,23 @@ interface SkillDetailData {
   completionDetails: string;
 }
 
-// Mock data for skill details
-const mockSkillDetails: Record<string, SkillDetailData> = {
-  'Handwashing - Infection Prevention': {
-    skillName: 'Handwashing - Infection Prevention',
-    description: 'Demonstrate proper handwashing technique for infection prevention and control in healthcare settings.',
-    requirements: [
-      'Wet hands with clean, running water',
-      'Apply soap and lather all surfaces of hands',
-      'Scrub for at least 20 seconds',
-      'Rinse thoroughly under running water',
-      'Dry hands using a clean towel or air dryer'
-    ],
-    resources: [
-      { name: 'CDC Hand Hygiene Guidelines', url: 'https://www.cdc.gov/handhygiene/index.html' },
-      { name: 'WHO Hand Hygiene Techniques', url: 'https://www.who.int/gpsc/5may/Hand_Hygiene_Why_How_and_When_Brochure.pdf' }
-    ],
-    completionDetails: 'Skill completion requires demonstration of proper technique and answering knowledge questions.'
-  },
-  'PPE - Infection Prevention': {
-    skillName: 'PPE - Infection Prevention',
-    description: 'Properly don (put on) and doff (remove) personal protective equipment (PPE) to prevent infection transmission.',
-    requirements: [
-      'Identify appropriate PPE for different clinical situations',
-      'Correctly sequence donning of gown, mask, goggles, gloves',
-      'Safely remove contaminated PPE without self-contamination',
-      'Dispose of PPE properly in designated containers'
-    ],
-    resources: [
-      { name: 'PPE Donning and Doffing Guide', url: 'https://www.cdc.gov/hai/pdfs/ppe/ppe-sequence.pdf' },
-      { name: 'Infection Control Guidelines', url: 'https://www.cdc.gov/infectioncontrol/guidelines/index.html' }
-    ],
-    completionDetails: 'Must demonstrate proper technique for both donning and doffing procedures.'
-  },
-  'Vital Signs / Oximetry': {
-    skillName: 'Vital Signs / Oximetry',
-    description: 'Accurately measure and document vital signs including temperature, pulse, respiration, blood pressure, and oxygen saturation.',
-    requirements: [
-      'Correctly use thermometer, stethoscope, blood pressure cuff, and pulse oximeter',
-      'Obtain accurate readings on simulated patients',
-      'Recognize normal vs. abnormal vital sign ranges',
-      'Properly document findings in appropriate format'
-    ],
-    resources: [
-      { name: 'Vital Signs Measurement Guide', url: '#' },
-      { name: 'Pulse Oximetry Training Module', url: '#' }
-    ],
-    completionDetails: 'Accuracy within acceptable ranges must be demonstrated on multiple attempts.'
-  },
-  // Add more mock data as needed
-};
+interface CourseInfoResponse{
+  CourseName?: string;
+  Skills?: Record<string,
+  {
+    Description?: string;
+    Requirements?: string[];
+    Resources?: Array<{ name: string; url?: string }>;
+    CompletionDetails?: string;  // this could be needed for the "need to get checked off"/"checked off by _ on _" at the bottom?
+  }>;
+}
 
 export default function SkillDetailScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
+
+  const [skillData, setSkillData] = useState<SkillDetailData | null>(null);
 
   // Parse skill data from params
   const skillName = decodeURIComponent(params.id as string);
@@ -82,38 +44,28 @@ export default function SkillDetailScreen() {
 
   const isComplete = status === 'complete';
 
+  const courseId = params.courseId as string;
+
   const handleBack = () => {
     if (courseName) {
-      router.replace({ pathname: "/course/[id]", params: { id: courseName }});
+      router.replace({ 
+        pathname: "/course/[id]", 
+        params: { id: encodeURIComponent(courseName), courseId },
+      });
     } else {
       router.back(); // hopefully the top works so this doesnt take us to the profile page
       console.log("Error going back to course ", {courseName} )
     }
   }
 
-  // Get skill details from mock data
-  const skillData = mockSkillDetails[skillName] || {
-    skillName,
-    description: 'Detailed description for this skill will be available soon.',
-    requirements: [
-      'Demonstrate competency in skill performance',
-      'Follow established protocols and procedures',
-      'Document completion appropriately'
-    ],
-    resources: [
-      { name: 'Course Textbook', url: '#' },
-      { name: 'Skill Checklist', url: '#' }
-    ],
-    completionDetails: isComplete 
-      ? 'This skill has been marked as complete by an instructor.' 
-      : 'This skill requires instructor verification for completion.'
-  };
 
   // Optional: Verify skill status with API (but /hello doesn't have individual skill status)
-  useEffect(() => {
-    const verifySkillStatus = async () => {
+
+    useEffect( () => { 
+      const fetchSkillDetails = async () => {
       try {
         setLoading(true);
+
         const session = await fetchAuthSession();
         const token = session.tokens?.idToken?.toString();
         
@@ -123,32 +75,64 @@ export default function SkillDetailScreen() {
           return;
         }
 
-        // Get all data to verify skill status
-        const response = await fetch(`${BASE_URL}/FetchUserData`, {
+        console.log('fetching skill details from: ', `${BASE_URL}/GetCourseInformation`)
+        // Get all data to verify skill status based on courseId
+        const response = await fetch(`${BASE_URL}/GetCourseInformation?Course_ID=${encodeURIComponent(courseId)}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             "Authorization": token,
           },
         });
+        
+        console.log('Fetching info for courseId: ', courseId);
 
+        // friendlier error responses
         if (!response.ok) {
+          const text = await response.text();
+          console.error('/GetCourseInformation call failed:', {
+            status: response.status,
+            body: text,
+            courseIdSent: courseId,
+          });
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
-        console.log('Data received for verification:', data);
-        // Note: We could parse to verify, but for now we trust the params
-        setLoading(false);
+        const courseInfo: CourseInfoResponse = await response.json();
+        console.log('course info: ', courseInfo);
+
+        const skillTemplate = courseInfo?.Skills?.[skillName];
+
+        if (!skillTemplate) {
+          console.warn('Skill not found in course: ', { courseName, skillName });
+          setLoading(false);
+          return;
+        }
         
+      
+        setSkillData({
+          skillName,
+          description: skillTemplate.Description ?? 'No description available.',
+          requirements: skillTemplate.Requirements ?? ['No requirements available.'],
+          resources: (skillTemplate.Resources ?? []).map((r) => ({
+            name: r.name ?? 'Resource',
+            url: r.url ?? '#',
+          })),
+          completionDetails: skillTemplate.CompletionDetails ?? (
+            isComplete ? 'Marked as complete by instructor.' // probably change based on what message we want
+            : 'This skill has not been marked as complete by an instructor.'
+          ),
+        }),
+
+        setLoading(false);
       } catch (error) {
         console.error('Error verifying skill status:', error);
         setLoading(false);
       }
     };
 
-    verifySkillStatus();
-  }, [skillName, courseName]);
+    fetchSkillDetails();
+  }, [skillName, courseName, courseId, isComplete]);
 
   const handleResourcePress = (url: string) => {
     if (url && url !== '#' && url.startsWith('http')) {
@@ -158,10 +142,9 @@ export default function SkillDetailScreen() {
     }
   };
 
+  // NOTE: once we get the teacher checkoff functionality we must update this!
   const handleGetCheckedOff = async () => {
     try {
-      // Since we don't have an endpoint to update skill status, we'll just show an alert
-      // In a real app, you would call an API endpoint here
       alert(`Skill "${skillName}" would be marked as complete. This requires instructor verification.`);
       
       // Optional: Log to console for debugging
@@ -204,7 +187,7 @@ export default function SkillDetailScreen() {
               >
               <Ionicons name="arrow-back-outline" size={40} color="#000000" />
               </Pressable>
-              <AppText style={generalStyles.courseHeaderTitle}>{courseName}</AppText>
+              <AppText style={generalStyles.courseHeaderTitle}>{skillName}</AppText>
               <Ionicons name="checkmark-circle-outline" size={40} color="#2F6BFF" />
         </View>
 
@@ -214,23 +197,29 @@ export default function SkillDetailScreen() {
           {isComplete ? (
             <View>
                 <Ionicons name="checkmark-outline" size={20} color="#4972FF" />
-                <AppText style={styles.statusText}>Complete</AppText>
+                <AppText style={[
+                  styles.statusText,
+                  { color: "#4972FF"},
+                  ]}>Complete</AppText>
           </View>
         ) : (
-          <AppText style={styles.statusText}>Incomplete</AppText>
+          <AppText style={[
+                  styles.statusText,
+                  { color: "#919191"},
+                  ]}>Incomplete</AppText>
         )}
         </View>
 
         {/* Details Section */}
         <View style={styles.section}>
           <AppText style={styles.sectionTitle}>Details</AppText>
-          <AppText style={styles.descriptionText}>{skillData.description}</AppText>
+          <AppText style={styles.descriptionText}>{skillData?.description}</AppText>
         </View>
 
         {/* Requirements Section */}
         <View style={styles.section}>
           <AppText style={styles.sectionTitle}>Requirements</AppText>
-          {skillData.requirements.map((requirement, index) => (
+          {skillData?.requirements.map((requirement, index) => (
             <View key={index} style={styles.requirementItem}>
               <AppText style={styles.bullet}>•</AppText>
               <AppText style={styles.requirementText}>{requirement}</AppText>
@@ -241,7 +230,7 @@ export default function SkillDetailScreen() {
         {/* Resources Section */}
         <View style={styles.section}>
           <AppText style={styles.sectionTitle}>Resources</AppText>
-          {skillData.resources.map((resource, index) => (
+          {skillData?.resources.map((resource, index) => (
             <Pressable
               key={index}
               style={styles.resourceItem}
@@ -257,7 +246,7 @@ export default function SkillDetailScreen() {
         <View style={styles.section}>
           <AppText style={styles.sectionTitle}>Completion Details</AppText>
           <AppText style={styles.completionText}>
-            {skillData.completionDetails}
+            {skillData?.completionDetails}
           </AppText>
         </View>
 
@@ -269,7 +258,10 @@ export default function SkillDetailScreen() {
           ]}
           onPress={handleGetCheckedOff}
         >
-          <AppText style={styles.actionButtonText}>
+          <AppText style={[
+            styles.actionButtonText,
+            { color: isComplete ? '#ffffff' : '#000000'}
+            ]}>
             {isComplete ? 'Skill Complete' : 'Get Checked Off'}
           </AppText>
         </Pressable>
@@ -293,7 +285,6 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#4972FF'
   },
 
   // courseName: {
@@ -358,15 +349,17 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   actionButton: {
-    borderRadius: 12,
-    paddingVertical: 16,
+    borderRadius: 30,
+    padding: 10,
     alignItems: 'center',
+    alignSelf: 'center',
     marginTop: 20,
+    width: 250,
   },
   actionButtonText: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#FFFFFF',
+    // color: '#ffffff',
   },
   spacer: {
     height: 40,

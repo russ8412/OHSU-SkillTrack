@@ -13,6 +13,13 @@ interface Skill {
   status: boolean;
 }
 
+interface SkillCheckInfo {
+  CheckedOff: boolean;
+  CheckedOffBy: string;
+  DateCheckedOff: string;
+}
+
+
 interface StudentData {
   Email: string;
   FirstName?: string | null;
@@ -22,7 +29,7 @@ interface StudentData {
     string,
     {
       CourseName?: string,
-      Skills?: Record<string, boolean>
+      Skills?: Record<string, SkillCheckInfo>
     }
   >;
 }
@@ -37,7 +44,8 @@ export default function CourseSkillsScreen() {
   const [loading, setLoading] = useState(true);
 
   // Parse course data from params
-  const courseName = decodeURIComponent(params.id as string);
+  const courseName = decodeURIComponent(params.id as string); // for the UI
+  const courseId = decodeURIComponent(params.courseId as string); // for the data
   // const year = parseInt(params.year as string) || 1;
   const totalSkills = parseInt(params.totalSkills as string) || 0;
   const completedSkillsFromParams = parseInt(params.completedSkills as string) || 0;
@@ -77,13 +85,12 @@ export default function CourseSkillsScreen() {
       
       // updated to take years out and now only relies on course objects
       if (coursesObject && typeof coursesObject === 'object') {
-        const matchedCourse = Object.values(coursesObject).find((c) => c?.CourseName === courseName);
-
+        const matchedCourse = coursesObject?.[courseId]; // we now want to use courseId to match rather than just the name
         if (matchedCourse?.Skills) {
           const skillEntries = Object.entries(matchedCourse.Skills);
           courseSkills = skillEntries.map(([skillName, status]) => ({
             skillName,
-            status: status === true
+            status: status.CheckedOff
           }));
           console.log(`Found ${skillEntries.length} skills for course: ${courseName}`);
         } else {
@@ -143,6 +150,7 @@ export default function CourseSkillsScreen() {
         id: encodeURIComponent(skill.skillName),
         status: skill.status ? 'complete' : 'incomplete',
         courseName: courseName,
+        courseId: courseId,
       }
     });
   };
