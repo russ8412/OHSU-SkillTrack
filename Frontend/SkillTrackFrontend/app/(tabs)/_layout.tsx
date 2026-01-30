@@ -81,10 +81,27 @@ export default function TabsLayout() {
         }}
       />
 
+      <Tabs.Screen
+        name="instructor"
+        options={{
+          tabBarIcon: ({ color, size}) => (
+            <Ionicons
+              name="school-outline"
+              size={size ?? 26}
+              color={color}
+              />
+          ),
+        }}
+      />
+
       {/* hidden drill-down routes (NOT buttons) */}
       {/* <Tabs.Screen name="courses-by-year" options={{ href: null }} /> */}
       <Tabs.Screen name="course/[id]" options={{ href: null }} />
       <Tabs.Screen name="skill/[id]" options={{ href: null }} />
+      <Tabs.Screen name="instructor/[id]" options={{ href: null }} />
+      <Tabs.Screen name="instructor/student/[email]" options={{ href: null }} />
+      <Tabs.Screen name="instructor/student/[email]/skill/[skillName]" options={{ href: null }} />
+      <Tabs.Screen name="instructor/student/[email]/course/[courseId]" options={{ href: null }} />
     </Tabs>
   );
 }
