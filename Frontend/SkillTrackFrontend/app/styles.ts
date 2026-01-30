@@ -218,6 +218,57 @@ const generalStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+
+  // ------------------- profile page --------------------
+  profileCard: {
+    backgroundColor: '#F4F4F4',
+    borderRadius: 30,
+    padding: 24,
+    marginBottom: 24,
+  },
+
+  profileNameText: {
+    fontSize: 28,
+    fontWeight: '600',
+    color: '#000000',
+    marginBottom: 8,
+  },
+
+  profileEmailText: {
+    fontSize: 16,
+    color: '#666666',
+    marginBottom: 16,
+  },
+
+  profileDivider: {
+    height: 1,
+    backgroundColor: '#E5E5EA',
+    marginBottom: 16,
+  },
+
+  profileProgressLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#000000',
+    marginBottom: 8,
+  },
+
+  profileSkillsCountText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4972FF',
+    marginBottom: 12,
+  },
+
+  profileLogoutButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    backgroundColor: '#FF3B30',
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  // ------------------- profile page --------------------
 });
 
 export default generalStyles;
