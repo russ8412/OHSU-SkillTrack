@@ -63,3 +63,7 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+
+
+# API URL
+src/constants/api.ts
