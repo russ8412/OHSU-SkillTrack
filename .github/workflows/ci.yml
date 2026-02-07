@@ -33,10 +33,11 @@ jobs:
           echo '{}' > src/amplifyconfiguration.json
       
       # Installs dependencies
-      - name: Install dependencies
+      - name: Install dependencies & copy into API
         run: |
           cd Frontend/SkillTrackFrontend
           npm ci
+          cp src/constants/example-api.ts src/constants/api.ts
 
       # Verifies Expo can compile. Test cases will go after this once written.
       - name: Verify Expo can compile
