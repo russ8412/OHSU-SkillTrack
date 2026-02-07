@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SkillTrackBackend
+
+  Sample SAM Template for SkillTrackBackend
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: MyCognitoAuthorizer
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn: !GetAtt MyCognitoUserPool.Arn
+
+#Original DynamoDB Table
+# SkillTrackTable:
+#    Type: AWS::DynamoDB::Table
+#    Properties:
+#      TableName: SkillTrackTable
+#      AttributeDefinitions:
+#        - AttributeName: ID
+#          AttributeType: S
+#      KeySchema:
+#        - AttributeName: ID
+#          KeyType: HASH
+#      BillingMode: PROVISIONED
+#      ProvisionedThroughput: 
+#        ReadCapacityUnits: 1
+#        WriteCapacityUnits: 1
+
+  
+  SkillTrackTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: SkillTrackTable
+      AttributeDefinitions:
+        - AttributeName: Email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Email
+          KeyType: HASH
+      BillingMode: PROVISIONED
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+  
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: hello_world/
+      Handler: app.lambda_handler
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        HelloWorld:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /hello
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: SkillTrackTable
+      Environment:
+        Variables:
+          TABLE_NAME: SkillTrackTable
+
+
+  MyCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: MyUserPool
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+  
+  MyCognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref MyCognitoUserPool
+      ClientName: MyUserPoolClient
+      GenerateSecret: false  
+Outputs:
+
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${MyApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/hello/"
+  HelloWorldFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt HelloWorldFunctionRole.Arn

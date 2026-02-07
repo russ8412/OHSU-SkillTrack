@@ -1,9 +1,9 @@
 ## Backend Release Notes
 
 
-| 1.1 |
+| 1.1|
 |--------|
-| Write release notes here|
+| 11/23/2025 - Basic AWS backend structure has been created. This update primarly consists of resources provisioned in the template.yaml file, which tells AWS what resources to deploy, this includes the basic Lambda+Gateway pattern, currently there is one lambda function, and it's endpoint is created w/aws gateway. This lambda function is a simple hello world. But it has code that fetches data from the DB at the moment (although it is currently not working due to some recent changes in the db table structure). The template file also provisions our skilltrack dynamo db table, and it provisions cognito user pools, and it also protects the backend endpoints with authentication based on those cognito user pools |
 
 
 | 1.0 |
