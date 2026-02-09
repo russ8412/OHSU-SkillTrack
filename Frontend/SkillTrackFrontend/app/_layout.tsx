@@ -1,28 +1,28 @@
-import { Stack } from 'expo-router';
-import 'react-native-reanimated';
-import React from 'react';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+// this file defines our app root layout
+import React from "react";
+import { Stack } from "expo-router";
+import "react-native-reanimated";
 
-import { Amplify } from 'aws-amplify';
-import {withAuthenticator,useAuthenticator} from '@aws-amplify/ui-react-native';
+import { Amplify } from "aws-amplify";
+import { Authenticator } from "@aws-amplify/ui-react-native";
+import config from "../src/amplifyconfiguration.json";
 
-import config from '../src/amplifyconfiguration.json';
+import { useFonts } from "expo-font";
+
 Amplify.configure(config);
 
-// export const unstable_settings = {
-//   anchor: '(tabs)',
-// };
-
-
-
-function RootLayout() {
-  const colorScheme = useColorScheme();
+export default function RootLayout() {
+  useFonts({
+    Afacad: require("../assets/fonts/static/Afacad-Regular.ttf"),
+  });
 
   return (
-    <Stack>
-      <Stack.Screen name="login" options={{ headerShown: false }}/>
-    </Stack>
+    <Authenticator.Provider>
+      <Authenticator>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+      </Authenticator>
+    </Authenticator.Provider>
   );
 }
-
-export default withAuthenticator(RootLayout);
