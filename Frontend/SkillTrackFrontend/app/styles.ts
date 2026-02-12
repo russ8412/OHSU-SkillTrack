@@ -48,21 +48,6 @@ const generalStyles = StyleSheet.create({
 
   listContent: {
     paddingBottom: 20,
-  },  
-  
-  // may want to update to be black?
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-
-  loadingText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#4972FF',
-    marginBottom: 4,
   },
 
   // styling for course name and skill names
@@ -74,31 +59,16 @@ const generalStyles = StyleSheet.create({
     marginRight: 12,
   },
 
-  emptyState: {
+  emptySearchContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    marginTop: 60,
+    paddingTop: 25
   },
 
-  emptyStateIcon: {
-    fontSize: 48,
-    marginBottom: 16,
-    color: '#8E8E93',
-  },
-
-  emptyStateTitle: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: '#000000',
-    marginBottom: 8,
-  },
-
-  emptyStateText: {
-    fontSize: 17,
-    color: '#8E8E93',
-    textAlign: 'center',
-    paddingHorizontal: 40,
+  emptySearchText: {
+    fontSize: 20,
+    color: '#919191',
   },
   // -------------------- general styles --------------------
 
