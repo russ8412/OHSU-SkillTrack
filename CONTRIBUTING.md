@@ -52,6 +52,8 @@ https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/s
 
 The most important detail to know is that the resources we want to deploy are to be specified in the template.yaml file (database tables, endpoints, user pools, etc.) And then to define specific functions for endpoints, we make a python file in a new folder to define that behavior.
 
+The frontend has a automated GitHub CI to make sure that the frontend can sucessfully compile for a particular PR.
+
 ## Security & Secrets
 It is prohibited to write secrets(ie. API tokens, client secrets, etc) to this repo anywhere, this includes any branch, or commit. If such a item has been accidently written to the repo. Report it to the team immediately, and take the steps necessary to refresh the secret such that the previous value is null and does nothing.
 
