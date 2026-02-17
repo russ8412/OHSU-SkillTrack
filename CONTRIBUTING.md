@@ -44,7 +44,15 @@ After the threshold for approving reviews is reached, **the PR author is respons
 Reviewers are expected to look through all modified files, and comment any potential problems that they see in the code. They are also expected to enforce good coding practices.
 
 ## CI/CD
-When developing lambda functions for the backend, the functions wil be automatically deployed to AWS using this proceedure: https://docs.aws.amazon.com/lambda/latest/dg/deploying-github-actions.html
+When developing lambda functions for the backend, our code will follow a Infrastructure as Code (IaC) methodology, using the AWS Serverless Application Model (AWS SAM) to write code into our repo, and then deploy onto our live AWS system.
+For a detailed explanation on how to develop code with the SAM, this document is useful: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html
+The needed infra is already there to actually build and deploy code though, in which case, the main important functions are these two: 
+https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-build.html
+https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-deploy.html
+
+The most important detail to know is that the resources we want to deploy are to be specified in the template.yaml file (database tables, endpoints, user pools, etc.) And then to define specific functions for endpoints, we make a python file in a new folder to define that behavior.
+
+The frontend has a automated GitHub CI to make sure that the frontend can sucessfully compile for a particular PR.
 
 ## Security & Secrets
 It is prohibited to write secrets(ie. API tokens, client secrets, etc) to this repo anywhere, this includes any branch, or commit. If such a item has been accidently written to the repo. Report it to the team immediately, and take the steps necessary to refresh the secret such that the previous value is null and does nothing.
