@@ -1,5 +1,11 @@
 ## Backend Release Notes
 
+| 1.2|
+|--------|
+| 2/19/2025 - The first big batch of essential endpoints has been created, these are: /FetchUserData, /GetListOfTemplates, /CreateCourseFromTemplate, /AddStudentToCourse, /GetCourseInformation, /CheckStudentOff. This set of endpoints should be sufficient to run the app provided that user accounts are configured, and course templates already in place. Future endpoints will
+focus on closing that remaining gap.|
+
+
 
 | 1.1|
 |--------|
