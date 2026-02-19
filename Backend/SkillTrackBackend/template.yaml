@@ -43,6 +43,22 @@ Resources:
       ProvisionedThroughput: 
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
+
+  #This defines the SkillTrackToken DynamoDB table.
+    SkillTrackTokenTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: SkillTrackTokenTable
+      AttributeDefinitions:
+        - AttributeName: Token
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Token
+          KeyType: HASH
+      BillingMode: PROVISIONED
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
   
   #----------------------------------------------------------------------ENDPOINT DEFINITION SECTION---------------------------------------------------------------------------------------#
   #Notes: Currently all json-body-input validation is done WITHIN each function, rather than on this level. We could do it here as well (or instead) but it it should be more portable checking inside.
@@ -95,6 +111,31 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: SkillTrackTable
+
+  #/FetchUserToken
+  #Used to Fetch the information of the logged in user
+  FetchTokenFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: FetchUserToken/
+      Handler: app.lambda_handler
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        FetchUserToken:
+          Type: Api 
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /FetchUserToken
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: SkillTrackTokenTable
+      Environment:
+        Variables:
+          TOKEN_TABLE_NAME: SkillTrackTokenTable
+
 
   #/CheckStudentOff
   #Used to check a student off if the caller has the permission
