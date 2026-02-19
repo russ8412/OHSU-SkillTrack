@@ -4,7 +4,7 @@ import boto3
 import secrets
 import time 
 dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table(os.environ["TABLE_NAME"])
+#table = dynamodb.Table(os.environ["TABLE_NAME"])
 token_table = dynamodb.Table(os.environ["TOKEN_TABLE_NAME"])
 
 

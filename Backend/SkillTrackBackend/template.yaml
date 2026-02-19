@@ -45,20 +45,20 @@ Resources:
         WriteCapacityUnits: 1
 
   #This defines the SkillTrackToken DynamoDB table.
-    SkillTrackTokenTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: SkillTrackTokenTable
-      AttributeDefinitions:
-        - AttributeName: Token
-          AttributeType: S
-      KeySchema:
-        - AttributeName: Token
-          KeyType: HASH
-      BillingMode: PROVISIONED
-      ProvisionedThroughput: 
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
+  SkillTrackTokenTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+    TableName: SkillTrackTokenTable
+    AttributeDefinitions:
+      - AttributeName: Token
+        AttributeType: S
+    KeySchema:
+      - AttributeName: Token
+        KeyType: HASH
+    BillingMode: PROVISIONED
+    ProvisionedThroughput: 
+      ReadCapacityUnits: 1
+      WriteCapacityUnits: 1
   
   #----------------------------------------------------------------------ENDPOINT DEFINITION SECTION---------------------------------------------------------------------------------------#
   #Notes: Currently all json-body-input validation is done WITHIN each function, rather than on this level. We could do it here as well (or instead) but it it should be more portable checking inside.
