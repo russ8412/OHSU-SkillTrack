@@ -8,12 +8,7 @@ Course_ID -  Course ID, ie. NRS-210-2026
 Student_ID - Student email, ie . student1@gmail.com
 '''
 
-
-
 import json
-
-# import requests
-
 import os
 import boto3
 
@@ -27,7 +22,6 @@ GlobalHeaders ={"Access-Control-Allow-Origin": "*",
 
 def add_student_to_course(event, context):
 
-    ##Attempt to fetch row for the user that called this function
     claims = event["requestContext"]["authorizer"]["claims"]
     email = claims.get("email")
 
@@ -55,7 +49,7 @@ def add_student_to_course(event, context):
                 "ID": "USER#" + email
             }
         )
-        
+        #Attempt to fetch row for the user that called this function
         calling_user_info = calling_user_response.get("Item")
         roles = calling_user_info.get("Roles", [])
         teaches_these_courses = calling_user_info.get("TeachingTheseCourses", [])
@@ -70,10 +64,10 @@ def add_student_to_course(event, context):
                 "body": json.dumps(output_body)
             }
         
-        #If they do have permission, we go thru the process of adding the student, we will want to do two things. Add the student to the list on the course AND
+        #If they do have permission, we go through the process of adding the student, we will want to do two things: 
+        #Add student into the course row itself AND add the course skill info to the student row.
         
-
-        #add student into the course row itself
+        #Add student email to roster of students enrolled in this course.
         table.update_item(
             Key ={
                 "ID": f"COURSE#{course_id_to_add_student_to}"
@@ -85,14 +79,13 @@ def add_student_to_course(event, context):
             ConditionExpression="attribute_exists(ID)"
         )
 
-
+        #extract data of course we are in the process of adding this student into
         new_course_data = table.get_item(
             Key ={
                 "ID": f"COURSE#{course_id_to_add_student_to}"
             }
         ).get("Item")
 
-        year_in_student_row_to_insert = new_course_data.get( "Year", {})
         name_of_course =  new_course_data["CourseName"]
 
 
@@ -107,7 +100,7 @@ def add_student_to_course(event, context):
         skills_list = new_course_data["Skills"].keys()
 
         for skill in skills_list:
-            #new_course_to_insert_to_student_row["Skills"][skill] = False
+            #new_course_to_insert_to_student_row["Skills"][skill] = False <--- Previous format without the nested structure that could only indicate if skill was checked off or not
             new_course_to_insert_to_student_row["Skills"][skill] = {
                 "CheckedOff": False,
                 "DateCheckedOff": "",
@@ -115,9 +108,7 @@ def add_student_to_course(event, context):
             }
 
         
-        #course is fully
-
-        #Here we will focus on adding student skills of the course to the student row
+        #new_course_to_insert_to_student_row now fully contains the course data, will all skills unchecked. We will insert this to the student row, where the check off state will be housed.
         table.update_item(
             Key ={
                 "ID": f"USER#{student_to_add_to_course}"
@@ -137,9 +128,9 @@ def add_student_to_course(event, context):
         statusCode = 200
         output_body = "successfully added student to course "
 
-    except:
+    except Exception as e:
         statusCode = 500
-        output_body = "failed to fully add student to course"
+        output_body = "failed to fully add student to course. Ended with this error: " + str(e)
 
     return{
         "statusCode": statusCode,

@@ -70,9 +70,9 @@ def get_list_of_templates(event, context):
         statusCode = 200
         print(output_body)
 
-    except:
+    except Exception as e:
         statusCode = 500
-        output_body = "Error reading data from the table."
+        output_body = "Error reading data from the table. Ended with this error: " + str(e)
 
 
     return{

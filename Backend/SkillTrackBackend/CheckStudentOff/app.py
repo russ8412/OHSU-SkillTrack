@@ -23,8 +23,6 @@ table = dynamodb.Table(os.environ["TABLE_NAME"])
 
 def lambda_handler(event, context):
 
-
-    ##Attempt to fetch row for the user that called this function
     claims = event["requestContext"]["authorizer"]["claims"]
     email = claims.get("email")
 
@@ -35,8 +33,6 @@ def lambda_handler(event, context):
 
 
     #First we check if the request is formatted correctly!
-
-
     input_body = None    
     #parse JSON body
     try:
