@@ -66,18 +66,6 @@ def add_student_to_course(event, context):
         
         #If they do have permission, we go through the process of adding the student, we will want to do two things: 
         #Add student into the course row itself AND add the course skill info to the student row.
-        
-        #Add student email to roster of students enrolled in this course.
-        table.update_item(
-            Key ={
-                "ID": f"COURSE#{course_id_to_add_student_to}"
-            },
-            UpdateExpression = "ADD Students :new",
-            ExpressionAttributeValues = {
-                ":new": {student_to_add_to_course}
-            },
-            ConditionExpression="attribute_exists(ID)"
-        )
 
         #extract data of course we are in the process of adding this student into
         new_course_data = table.get_item(
@@ -122,6 +110,19 @@ def add_student_to_course(event, context):
             ExpressionAttributeValues={
                 ":course": new_course_to_insert_to_student_row
             }
+        )
+
+
+        #Add student email to roster of students enrolled in this course.
+        table.update_item(
+            Key ={
+                "ID": f"COURSE#{course_id_to_add_student_to}"
+            },
+            UpdateExpression = "ADD Students :new",
+            ExpressionAttributeValues = {
+                ":new": {student_to_add_to_course}
+            },
+            ConditionExpression="attribute_exists(ID)"
         )
 
 
