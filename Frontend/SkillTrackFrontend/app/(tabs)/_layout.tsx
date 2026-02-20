@@ -94,10 +94,31 @@ export default function TabsLayout() {
         }}
       />
 
+      <Tabs.Screen
+        name="camera"
+        options={{
+          tabBarIcon: ({ color, size}) => (
+            <Ionicons
+              name="camera-outline"
+              size={size ?? 26}
+              color={color}
+              />
+          ),
+        }}
+      />
+
       {/* hidden drill-down routes (NOT buttons) */}
       {/* <Tabs.Screen name="courses-by-year" options={{ href: null }} /> */}
       <Tabs.Screen name="course/[id]" options={{ href: null }} />
       <Tabs.Screen name="skill/[id]" options={{ href: null }} />
+      
+      {/* New instructor routes */}
+      <Tabs.Screen name="instructor/course/[courseId]" options={{ href: null }} />
+      <Tabs.Screen name="instructor/course/[courseId]/student/[email]" options={{ href: null }} />
+      <Tabs.Screen name="instructor/course/[courseId]/student/[email]/skill/[skillName]" options={{ href: null }} />
+      <Tabs.Screen name="instructor/add-course" options={{ href: null }} />
+      
+      {/* Old instructor routes - keeping for backward compatibility during transition */}
       <Tabs.Screen name="instructor/[id]" options={{ href: null }} />
       <Tabs.Screen name="instructor/student/[email]" options={{ href: null }} />
       <Tabs.Screen name="instructor/student/[email]/skill/[skillName]" options={{ href: null }} />
