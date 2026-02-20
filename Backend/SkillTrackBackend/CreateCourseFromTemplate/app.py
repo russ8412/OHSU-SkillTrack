@@ -116,15 +116,22 @@ def create_course_from_template(event, context):
         )
         course_template = course_template_res.get("Item")
 
-    except:
+    except Exception as e:
         #If the template was not found, throw this exception and return
-        statusCode = 404
-        body = "Failed to find request template"
+        statusCode = 500
         return{
             "statusCode": statusCode,
             "headers": GlobalHeaders,
-            "body": json.dumps(output_body)
+            "body":  json.dumps({"error": str(e)})
         }
+    
+    if not course_template:
+        return {
+            "statusCode": 404,
+            "headers": GlobalHeaders,
+            "body": json.dumps({"error": "Failed to find request template"})
+        }
+
 
 
     #with us now having the course template we can work to extract the values from it to make our course!
