@@ -2,14 +2,10 @@ import { View, Pressable, StyleSheet } from 'react-native';
 import { AppText } from "@/components/AppText";
 
 interface Course {
-    courseId: string;
-    courseName: string;
-    totalSkills: number;
-    completedSkills: number;
-    skills: Array<{
-        skillName: string;
-        status: boolean;
-    }>;
+    courseId: string
+    courseName: string
+    totalSkills: number
+    completedSkills: number
 }
 
 interface CourseCardProps {
