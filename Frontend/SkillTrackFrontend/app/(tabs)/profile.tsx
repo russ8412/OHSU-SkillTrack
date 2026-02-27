@@ -5,6 +5,7 @@ import { AppText } from "@/components/AppText"
 import generalStyles from '../styles';
 import { useState, useEffect, useCallback } from 'react';
 import { BASE_URL } from '../../src/constants/api';
+import QRCode from "react-native-qrcode-svg";
 
 interface SkillCheckInfo {
   CheckedOff: boolean;
@@ -26,11 +27,17 @@ interface UserData {
   >;
 }
 
+interface UserToken {
+  Token: string;
+}
+
 export default function ProfileTab() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [totalSkills, setTotalSkills] = useState(0);
   const [completedSkills, setCompletedSkills] = useState(0);
+  const [userToken, setUserToken] = useState<UserToken | null>(null);
+
 
   // Fetch user data from API
   const fetchUserData = useCallback(async () => {
@@ -87,6 +94,43 @@ export default function ProfileTab() {
     fetchUserData();
   }, [fetchUserData]);
 
+  const fetchToken = useCallback(async () => {
+    setLoading(true);
+    
+    try{
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+
+      if (!token) {
+        console.error('No authentication token found');
+        setLoading(false);
+        return;
+      }
+      
+      const response = await fetch(`${BASE_URL}/FetchUserToken`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json() as UserToken;
+      setUserToken(data);
+    }catch (error) {
+      console.error('Error fetching user data:', error);
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchToken();
+  }, [fetchToken]);
+
   const handleLogout = async () => {
     try {
       await signOut();
@@ -112,6 +156,8 @@ export default function ProfileTab() {
     ? `${userData.FirstName} ${userData.LastName}`
     : userData?.FirstName || 'User';
 
+  const displayToken = userToken?.Token;
+
   return (
     <ScrollView style={generalStyles.container}>
       {/* Header */}
@@ -127,7 +173,10 @@ export default function ProfileTab() {
       <View style={generalStyles.profileCard}>
         {/* Name */}
         <AppText style={generalStyles.profileNameText}>{displayName}</AppText>
-
+         
+        {/* QR Code */}
+        <QRCode value={displayToken} size={150}/>
+        
         {/* Email */}
         <AppText style={generalStyles.profileEmailText}>{userData?.Email}</AppText>
 
