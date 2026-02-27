@@ -1,7 +1,7 @@
 // app/(tabs)/instructor/course/[courseId].tsx
 import { AppText } from "@/components/AppText";
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, Pressable, FlatList, TextInput } from 'react-native';
+import { View, Pressable, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { BASE_URL } from '../../../../src/constants/api';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -179,7 +179,7 @@ export default function CourseDetailScreen() {
       {filteredStudents.length === 0 ? (
         <View style={generalStyles.emptyState}>
           <AppText style={generalStyles.emptyStateIcon}>👥</AppText>
-          <AppText style={generalStyles.emptyStateTitle}>No students found</AppText>
+          <AppText style={generalStyles.emptyStateTitle}>No students found TESTTTTT</AppText>
           <AppText style={generalStyles.emptyStateText}>
             {searchQuery ? "Try adjusting your search" : "No students enrolled"}
           </AppText>
@@ -193,6 +193,37 @@ export default function CourseDetailScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
+
+        {/* PLEASE COMPONENTIZE IM SO SORRY */}
+        {/* I kept the button the same as adding a new course for consistency, but if you prefer it to match the figma with the 3 dots at the top feel free to change */}
+        {/* Add Student Button */}
+          <View style={{ alignItems: 'center', marginVertical: 24, marginBottom: 120 }}>
+            <TouchableOpacity
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: 28,
+                backgroundColor: '#4972FF',
+                alignItems: 'center',
+                justifyContent: 'center',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 8,
+              }}
+              onPress={() => {
+                router.push( {
+                  pathname: '/(tabs)/instructor/course/[courseId]/add-student',
+                  params: { courseId },
+                }
+                );
+              }}
+            >
+              <Ionicons name="add" size={32} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
     </View>
   );
 }
+ 

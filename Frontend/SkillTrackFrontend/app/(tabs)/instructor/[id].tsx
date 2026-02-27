@@ -345,7 +345,7 @@ export default function InstructorCourseScreen() {
       {filteredStudents.length === 0 ? (
         <View style={generalStyles.emptyState}>
           <AppText style={generalStyles.emptyStateIcon}>👥</AppText>
-          <AppText style={generalStyles.emptyStateTitle}>No students found</AppText>
+          <AppText style={generalStyles.emptyStateTitle}>No students found BRUH!</AppText>
           <AppText style={generalStyles.emptyStateText}>
             {searchQuery ? "Try adjusting your search" : "No students in this course"}
           </AppText>
